@@ -4,6 +4,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/pii-vault)](https://crates.io/crates/pii-vault)
 [![npm](https://img.shields.io/npm/v/pii-vault)](https://www.npmjs.com/package/pii-vault)
+[![PyPI](https://img.shields.io/pypi/v/pii-vault)](https://pypi.org/project/pii-vault/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE-MIT)
 
 Multi-language implementations sharing a common specification. Detect 40+ PII entity types, anonymize with multiple strategies (replace, mask, hash, redact), and reversibly tokenize with a persistent vault.
@@ -16,6 +17,12 @@ cargo add pii-vault
 
 # TypeScript / JavaScript
 npm install pii-vault
+
+# Python
+pip install pii-vault
+
+# Go
+go get github.com/Jiansen/pii-vault/go
 ```
 
 ## Features
