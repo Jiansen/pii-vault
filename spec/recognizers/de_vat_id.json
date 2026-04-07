@@ -1,0 +1,16 @@
+{
+  "name": "de_vat_id_recognizer",
+  "entity_type": "DE_VAT_ID",
+  "version": "1.0.0",
+  "note": "German USt-IdNr (Umsatzsteuer-Identifikationsnummer). Format: DE + 9 digits.",
+  "patterns": [
+    {
+      "name": "ust_id",
+      "regex": "\\bDE[ ]?\\d{9}\\b",
+      "score": 0.7
+    }
+  ],
+  "context_words": ["ust-idnr", "umsatzsteuer", "vat", "vat id", "vat number", "mehrwertsteuer", "mwst"],
+  "context_score_boost": 0.2,
+  "supported_languages": ["de", "en"]
+}

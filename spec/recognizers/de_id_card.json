@@ -1,0 +1,21 @@
+{
+  "name": "de_id_card_recognizer",
+  "entity_type": "DE_ID_CARD",
+  "version": "1.0.0",
+  "note": "German Personalausweisnummer (nPA since Nov 2010). 9 alphanumeric chars or legacy T+8 digits. Aligned with Presidio (MIT).",
+  "patterns": [
+    {
+      "name": "npa_icao",
+      "regex": "\\b[CFGHJKLMNPRTVWXYZ][CFGHJKLMNPRTVWXYZ0-9]{7}[0-9]\\b",
+      "score": 0.3
+    },
+    {
+      "name": "legacy_t_format",
+      "regex": "\\bT\\d{8}\\b",
+      "score": 0.3
+    }
+  ],
+  "context_words": ["personalausweis", "ausweisnummer", "personalausweisnummer", "identity card", "ausweis", "id card", "id-karte", "npa"],
+  "context_score_boost": 0.5,
+  "supported_languages": ["de", "en"]
+}

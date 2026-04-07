@@ -71,16 +71,14 @@ impl RegexRecognizer {
     fn validate(&self, matched: &str) -> bool {
         for v in &self.def.validators {
             match v.as_str() {
-                "luhn" => {
-                    if !luhn_check(matched) {
-                        return false;
-                    }
-                }
-                "cn_id_checksum" => {
-                    if !cn_id_check(matched) {
-                        return false;
-                    }
-                }
+                "luhn" => { if !luhn_check(matched) { return false; } }
+                "cn_id_checksum" => { if !cn_id_check(matched) { return false; } }
+                "iban" => { if !iban_check(matched) { return false; } }
+                "de_tax_id" => { if !de_tax_id_check(matched) { return false; } }
+                "au_abn" => { if !au_abn_check(matched) { return false; } }
+                "au_tfn" => { if !au_tfn_check(matched) { return false; } }
+                "au_acn" => { if !au_acn_check(matched) { return false; } }
+                "au_medicare" => { if !au_medicare_check(matched) { return false; } }
                 _ => {}
             }
         }
@@ -175,6 +173,89 @@ fn cn_id_check(id: &str) -> bool {
     }
     let expected = check_chars[sum % 11];
     chars[17].to_ascii_uppercase() == expected
+}
+
+fn iban_check(iban: &str) -> bool {
+    let cleaned: String = iban.chars().filter(|c| !c.is_whitespace() && *c != '-').collect();
+    if cleaned.len() < 5 || cleaned.len() > 34 {
+        return false;
+    }
+    let rearranged = format!("{}{}", &cleaned[4..], &cleaned[..4]);
+    let numeric: String = rearranged.chars().map(|c| {
+        if c.is_ascii_digit() { c.to_string() }
+        else { ((c as u32 - 'A' as u32) + 10).to_string() }
+    }).collect();
+    let mut remainder = 0u64;
+    for chunk in numeric.as_bytes().chunks(7) {
+        let s = format!("{}{}", remainder, std::str::from_utf8(chunk).unwrap_or(""));
+        remainder = s.parse::<u64>().unwrap_or(0) % 97;
+    }
+    remainder == 1
+}
+
+fn de_tax_id_check(id: &str) -> bool {
+    let digits: Vec<u32> = id.chars().filter(|c| c.is_ascii_digit()).filter_map(|c| c.to_digit(10)).collect();
+    if digits.len() != 11 || digits[0] == 0 {
+        return false;
+    }
+    let first10: std::collections::HashSet<u32> = digits[..10].iter().copied().collect();
+    if first10.len() == 1 {
+        return false;
+    }
+    let mut product = 10u32;
+    for i in 0..10 {
+        let total = (digits[i] + product) % 10;
+        let total = if total == 0 { 10 } else { total };
+        product = (total * 2) % 11;
+    }
+    let check = if 11 - product == 10 { 0 } else { 11 - product };
+    check == digits[10]
+}
+
+fn au_abn_check(abn: &str) -> bool {
+    let digits: Vec<i64> = abn.chars().filter(|c| c.is_ascii_digit()).filter_map(|c| c.to_digit(10).map(|d| d as i64)).collect();
+    if digits.len() != 11 {
+        return false;
+    }
+    let weights: [i64; 11] = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+    let mut d = digits.clone();
+    d[0] -= 1;
+    let sum: i64 = d.iter().zip(weights.iter()).map(|(a, b)| a * b).sum();
+    sum % 89 == 0
+}
+
+fn au_tfn_check(tfn: &str) -> bool {
+    let digits: Vec<u32> = tfn.chars().filter(|c| c.is_ascii_digit()).filter_map(|c| c.to_digit(10)).collect();
+    if digits.len() != 9 {
+        return false;
+    }
+    let weights: [u32; 9] = [1, 4, 3, 7, 5, 8, 6, 9, 10];
+    let sum: u32 = digits.iter().zip(weights.iter()).map(|(a, b)| a * b).sum();
+    sum % 11 == 0
+}
+
+fn au_acn_check(acn: &str) -> bool {
+    let digits: Vec<u32> = acn.chars().filter(|c| c.is_ascii_digit()).filter_map(|c| c.to_digit(10)).collect();
+    if digits.len() != 9 {
+        return false;
+    }
+    let weights: [u32; 8] = [8, 7, 6, 5, 4, 3, 2, 1];
+    let sum: u32 = digits[..8].iter().zip(weights.iter()).map(|(a, b)| a * b).sum();
+    let check = (10 - (sum % 10)) % 10;
+    check == digits[8]
+}
+
+fn au_medicare_check(medicare: &str) -> bool {
+    let digits: Vec<u32> = medicare.chars().filter(|c| c.is_ascii_digit()).filter_map(|c| c.to_digit(10)).collect();
+    if digits.len() < 10 || digits.len() > 11 {
+        return false;
+    }
+    if digits[0] < 2 || digits[0] > 6 {
+        return false;
+    }
+    let weights: [u32; 8] = [1, 3, 7, 9, 1, 3, 7, 9];
+    let sum: u32 = digits[..8].iter().zip(weights.iter()).map(|(a, b)| a * b).sum();
+    sum % 10 == digits[8]
 }
 
 pub fn load_recognizers_from_dir(dir: &std::path::Path) -> Vec<Box<dyn Recognizer>> {

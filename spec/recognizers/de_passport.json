@@ -1,0 +1,21 @@
+{
+  "name": "de_passport_recognizer",
+  "entity_type": "DE_PASSPORT",
+  "version": "1.0.0",
+  "note": "German Reisepassnummer. 9 alphanumeric chars, ICAO Doc 9303 charset (excludes I,O,Q,S,U). Aligned with Presidio (MIT).",
+  "patterns": [
+    {
+      "name": "passport_icao",
+      "regex": "\\b[CFGHJKLMNPRTVWXYZ][CFGHJKLMNPRTVWXYZ0-9]{7}[0-9]\\b",
+      "score": 0.4
+    },
+    {
+      "name": "passport_relaxed",
+      "regex": "\\b[A-Z][A-Z0-9]{7}[0-9]\\b",
+      "score": 0.1
+    }
+  ],
+  "context_words": ["reisepass", "passnummer", "reisepassnummer", "passport", "passport number", "pass-nr", "dokumentennummer", "bundesrepublik"],
+  "context_score_boost": 0.4,
+  "supported_languages": ["de", "en"]
+}

@@ -249,6 +249,83 @@ mod tests {
     }
 
     #[test]
+    fn test_iban_detection() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        let result = analyzer.analyze("IBAN: DE89370400440532013000", &[], 0.0);
+        let ibans: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "IBAN_CODE")
+            .collect();
+        assert!(!ibans.is_empty(), "Should detect IBAN");
+    }
+
+    #[test]
+    fn test_iban_invalid_checksum() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        let result = analyzer.analyze("IBAN: DE00370400440532013000", &[], 0.0);
+        let ibans: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "IBAN_CODE")
+            .collect();
+        assert!(ibans.is_empty(), "Should NOT detect IBAN with invalid checksum");
+    }
+
+    #[test]
+    fn test_de_tax_id_detection() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        let result = analyzer.analyze("Steuer-ID: 86095742719", &[], 0.0);
+        let ids: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "DE_TAX_ID")
+            .collect();
+        assert!(!ids.is_empty(), "Should detect German Tax ID");
+    }
+
+    #[test]
+    fn test_de_passport_detection() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        let result = analyzer.analyze("Reisepass: C01X00T47", &[], 0.0);
+        let passports: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "DE_PASSPORT")
+            .collect();
+        assert!(!passports.is_empty(), "Should detect German passport");
+    }
+
+    #[test]
+    fn test_de_vat_id_detection() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        let result = analyzer.analyze("USt-IdNr: DE123456789", &[], 0.0);
+        let vats: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "DE_VAT_ID")
+            .collect();
+        assert!(!vats.is_empty(), "Should detect German VAT ID");
+    }
+
+    #[test]
+    fn test_au_abn_detection() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        let result = analyzer.analyze("ABN: 51 824 753 556", &[], 0.0);
+        let abns: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "AU_ABN")
+            .collect();
+        assert!(!abns.is_empty(), "Should detect Australian ABN");
+    }
+
+    #[test]
+    fn test_au_tfn_detection() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        let result = analyzer.analyze("TFN: 123 456 782", &[], 0.0);
+        let tfns: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "AU_TFN")
+            .collect();
+        assert!(!tfns.is_empty(), "Should detect Australian TFN");
+    }
+
+    #[test]
     fn test_empty_text() {
         let recs = load_spec_recognizers();
         let analyzer = Analyzer::new(recs);

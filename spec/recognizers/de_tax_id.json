@@ -1,0 +1,17 @@
+{
+  "name": "de_tax_id_recognizer",
+  "entity_type": "DE_TAX_ID",
+  "version": "1.0.0",
+  "note": "German Steueridentifikationsnummer (Steuer-IdNr). 11 digits, first digit 1-9, ISO 7064 Mod 11,10 checksum. Aligned with Presidio (MIT).",
+  "patterns": [
+    {
+      "name": "steuer_id",
+      "regex": "\\b[1-9]\\d{10}\\b",
+      "score": 0.5
+    }
+  ],
+  "context_words": ["steueridentifikationsnummer", "steuer-id", "steuerid", "steuerliche identifikationsnummer", "idnr", "steuer-idnr", "steuernummer", "bzst", "tax id", "tax identification"],
+  "context_score_boost": 0.4,
+  "validators": ["de_tax_id"],
+  "supported_languages": ["de", "en"]
+}

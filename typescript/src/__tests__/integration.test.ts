@@ -131,6 +131,48 @@ describe('Integration: Spec-loaded recognizers', () => {
     expect(rrns.length).toBe(1);
   });
 
+  test('detects IBAN', () => {
+    const result = analyzer.analyze('IBAN: DE89370400440532013000');
+    const ibans = result.entities.filter(e => e.entityType.name === 'IBAN_CODE');
+    expect(ibans.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('rejects invalid IBAN checksum', () => {
+    const result = analyzer.analyze('IBAN: DE00370400440532013000');
+    const ibans = result.entities.filter(e => e.entityType.name === 'IBAN_CODE');
+    expect(ibans.length).toBe(0);
+  });
+
+  test('detects German Tax ID', () => {
+    const result = analyzer.analyze('Steuer-ID: 86095742719');
+    const ids = result.entities.filter(e => e.entityType.name === 'DE_TAX_ID');
+    expect(ids.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('detects German passport', () => {
+    const result = analyzer.analyze('Reisepass: C01X00T47');
+    const passports = result.entities.filter(e => e.entityType.name === 'DE_PASSPORT');
+    expect(passports.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('detects German VAT ID', () => {
+    const result = analyzer.analyze('USt-IdNr: DE123456789');
+    const vats = result.entities.filter(e => e.entityType.name === 'DE_VAT_ID');
+    expect(vats.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('detects Australian ABN', () => {
+    const result = analyzer.analyze('ABN: 51 824 753 556');
+    const abns = result.entities.filter(e => e.entityType.name === 'AU_ABN');
+    expect(abns.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test('detects Australian TFN', () => {
+    const result = analyzer.analyze('TFN: 123 456 782');
+    const tfns = result.entities.filter(e => e.entityType.name === 'AU_TFN');
+    expect(tfns.length).toBeGreaterThanOrEqual(1);
+  });
+
   test('empty text returns no entities', () => {
     const result = analyzer.analyze('');
     expect(result.entities.length).toBe(0);

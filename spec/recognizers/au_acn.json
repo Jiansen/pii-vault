@@ -1,0 +1,22 @@
+{
+  "name": "au_acn_recognizer",
+  "entity_type": "AU_ACN",
+  "version": "1.0.0",
+  "note": "Australian Company Number. 9 digits, Mod 10 checksum with weights.",
+  "patterns": [
+    {
+      "name": "acn_spaced",
+      "regex": "\\b\\d{3}[ ]\\d{3}[ ]\\d{3}\\b",
+      "score": 0.1
+    },
+    {
+      "name": "acn_continuous",
+      "regex": "\\b\\d{9}\\b",
+      "score": 0.01
+    }
+  ],
+  "context_words": ["australian company number", "acn", "company number", "asic"],
+  "context_score_boost": 0.4,
+  "validators": ["au_acn"],
+  "supported_languages": ["en"]
+}

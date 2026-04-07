@@ -1,1 +1,22 @@
-{"name":"au_tfn_recognizer","entity_type":"AU_TFN","version":"1.0.0","patterns":[{"name":"tfn","regex":"\\b\\d{3}[\\s-]?\\d{3}[\\s-]?\\d{3}\\b","score":0.1}],"context_words":["tfn","tax file","australian tax"],"context_score_boost":0.7,"validators":["au_tfn_checksum"],"supported_languages":["en"]}
+{
+  "name": "au_tfn_recognizer",
+  "entity_type": "AU_TFN",
+  "version": "1.0.0",
+  "note": "Australian Tax File Number. 9 digits, Mod 11 checksum with weights. Aligned with Presidio (MIT).",
+  "patterns": [
+    {
+      "name": "tfn_spaced",
+      "regex": "\\b\\d{3}[ ]\\d{3}[ ]\\d{3}\\b",
+      "score": 0.1
+    },
+    {
+      "name": "tfn_continuous",
+      "regex": "\\b\\d{9}\\b",
+      "score": 0.01
+    }
+  ],
+  "context_words": ["tax file number", "tfn", "australian taxation", "ato"],
+  "context_score_boost": 0.4,
+  "validators": ["au_tfn"],
+  "supported_languages": ["en"]
+}

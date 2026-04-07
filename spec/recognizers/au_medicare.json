@@ -1,1 +1,22 @@
-{"name":"au_medicare_recognizer","entity_type":"AU_MEDICARE","version":"1.0.0","patterns":[{"name":"medicare","regex":"\\b[2-6]\\d{3}[\\s-]?\\d{5}[\\s-]?\\d[\\s-]?\\d?\\b","score":0.2}],"context_words":["medicare","health","medical"],"context_score_boost":0.6,"supported_languages":["en"]}
+{
+  "name": "au_medicare_recognizer",
+  "entity_type": "AU_MEDICARE",
+  "version": "1.0.0",
+  "note": "Australian Medicare card number. 10-11 digits (10 base + optional 1 IRN digit).",
+  "patterns": [
+    {
+      "name": "medicare_spaced",
+      "regex": "\\b\\d{4}[ ]\\d{5}[ ]\\d{1,2}\\b",
+      "score": 0.1
+    },
+    {
+      "name": "medicare_continuous",
+      "regex": "\\b[2-6]\\d{9,10}\\b",
+      "score": 0.01
+    }
+  ],
+  "context_words": ["medicare", "medicare number", "medicare card", "health insurance"],
+  "context_score_boost": 0.4,
+  "validators": ["au_medicare"],
+  "supported_languages": ["en"]
+}

@@ -1,1 +1,22 @@
-{"name":"au_abn_recognizer","entity_type":"AU_ABN","version":"1.0.0","patterns":[{"name":"abn","regex":"\\b\\d{2}[\\s-]?\\d{3}[\\s-]?\\d{3}[\\s-]?\\d{3}\\b","score":0.1}],"context_words":["abn","business number","australian business"],"context_score_boost":0.7,"validators":["au_abn_checksum"],"supported_languages":["en"]}
+{
+  "name": "au_abn_recognizer",
+  "entity_type": "AU_ABN",
+  "version": "1.0.0",
+  "note": "Australian Business Number. 11 digits, Mod 89 checksum with weights. Aligned with Presidio (MIT).",
+  "patterns": [
+    {
+      "name": "abn_spaced",
+      "regex": "\\b\\d{2}[ ]\\d{3}[ ]\\d{3}[ ]\\d{3}\\b",
+      "score": 0.1
+    },
+    {
+      "name": "abn_continuous",
+      "regex": "\\b\\d{11}\\b",
+      "score": 0.01
+    }
+  ],
+  "context_words": ["australian business number", "abn", "business number"],
+  "context_score_boost": 0.4,
+  "validators": ["au_abn"],
+  "supported_languages": ["en"]
+}

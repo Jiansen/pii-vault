@@ -1,0 +1,16 @@
+{
+  "name": "de_handelsregister_recognizer",
+  "entity_type": "DE_HANDELSREGISTER",
+  "version": "1.0.0",
+  "note": "German Handelsregisternummer. HRA (sole traders/partnerships) or HRB (corporations) + 1-6 digits.",
+  "patterns": [
+    {
+      "name": "hr_number",
+      "regex": "\\bHR[AB][ ]?\\d{1,6}\\b",
+      "score": 0.5
+    }
+  ],
+  "context_words": ["handelsregister", "registergericht", "amtsgericht", "commercial register", "hrb", "hra"],
+  "context_score_boost": 0.4,
+  "supported_languages": ["de", "en"]
+}
