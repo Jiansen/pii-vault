@@ -1,0 +1,1 @@
+{"name":"kr_rrn_recognizer","entity_type":"KR_RRN","version":"1.0.0","patterns":[{"name":"rrn","regex":"\\b\\d{6}-[1-4]\\d{6}\\b","score":0.5}],"context_words":["주민등록번호","resident registration","rrn"],"context_score_boost":0.4,"supported_languages":["ko","en"]}

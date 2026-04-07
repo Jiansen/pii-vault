@@ -1,0 +1,21 @@
+{
+  "name": "pii-vault",
+  "version": "0.1.0",
+  "description": "Presidio-compatible PII detection, anonymization, and reversible tokenization",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": ["pii", "privacy", "anonymization", "redaction", "presidio"],
+  "license": "MIT",
+  "repository": "https://github.com/Jiansen/pii-vault",
+  "devDependencies": {
+    "@types/jest": "^29",
+    "jest": "^29",
+    "ts-jest": "^29",
+    "typescript": "^5"
+  }
+}

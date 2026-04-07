@@ -1,0 +1,20 @@
+{
+  "name": "mac_address_recognizer",
+  "entity_type": "MAC_ADDRESS",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "mac_colon",
+      "regex": "\\b(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}\\b",
+      "score": 0.5
+    },
+    {
+      "name": "mac_dash",
+      "regex": "\\b(?:[0-9A-Fa-f]{2}-){5}[0-9A-Fa-f]{2}\\b",
+      "score": 0.5
+    }
+  ],
+  "context_words": ["mac", "address", "hardware", "network", "device"],
+  "context_score_boost": 0.3,
+  "supported_languages": null
+}

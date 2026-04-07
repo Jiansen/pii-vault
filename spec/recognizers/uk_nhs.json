@@ -1,0 +1,16 @@
+{
+  "name": "uk_nhs_recognizer",
+  "entity_type": "UK_NHS",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "nhs_number",
+      "regex": "\\b\\d{3}[\\s-]?\\d{3}[\\s-]?\\d{4}\\b",
+      "score": 0.1
+    }
+  ],
+  "context_words": ["nhs", "national health", "health service", "patient"],
+  "context_score_boost": 0.7,
+  "validators": ["nhs_checksum"],
+  "supported_languages": ["en"]
+}

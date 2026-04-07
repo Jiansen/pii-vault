@@ -1,0 +1,1 @@
+{"name":"es_nie_recognizer","entity_type":"ES_NIE","version":"1.0.0","patterns":[{"name":"nie","regex":"\\b[XYZ]\\d{7}[A-Z]\\b","score":0.5}],"context_words":["nie","foreigner","extranjero"],"context_score_boost":0.4,"supported_languages":["es","en"]}

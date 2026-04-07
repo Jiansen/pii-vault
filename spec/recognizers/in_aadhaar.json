@@ -1,0 +1,16 @@
+{
+  "name": "in_aadhaar_recognizer",
+  "entity_type": "IN_AADHAAR",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "aadhaar",
+      "regex": "\\b[2-9]\\d{3}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b",
+      "score": 0.3
+    }
+  ],
+  "context_words": ["aadhaar", "aadhar", "uid", "आधार"],
+  "context_score_boost": 0.5,
+  "validators": ["verhoeff"],
+  "supported_languages": ["en", "hi"]
+}

@@ -1,0 +1,1 @@
+{"name":"au_abn_recognizer","entity_type":"AU_ABN","version":"1.0.0","patterns":[{"name":"abn","regex":"\\b\\d{2}[\\s-]?\\d{3}[\\s-]?\\d{3}[\\s-]?\\d{3}\\b","score":0.1}],"context_words":["abn","business number","australian business"],"context_score_boost":0.7,"validators":["au_abn_checksum"],"supported_languages":["en"]}

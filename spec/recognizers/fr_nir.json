@@ -1,0 +1,1 @@
+{"name":"fr_nir_recognizer","entity_type":"FR_NIR","version":"1.0.0","patterns":[{"name":"nir","regex":"\\b[12]\\d{2}(?:0[1-9]|1[0-2])\\d{2}\\d{3}\\d{3}\\d{2}\\b","score":0.5}],"context_words":["numéro de sécurité sociale","nir","sécurité sociale","sécu"],"context_score_boost":0.4,"supported_languages":["fr","en"]}

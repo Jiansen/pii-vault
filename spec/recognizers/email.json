@@ -1,0 +1,15 @@
+{
+  "name": "email_recognizer",
+  "entity_type": "EMAIL_ADDRESS",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "email",
+      "regex": "[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}",
+      "score": 0.5
+    }
+  ],
+  "context_words": ["email", "e-mail", "mail", "address", "邮箱", "メール"],
+  "context_score_boost": 0.4,
+  "supported_languages": null
+}

@@ -1,0 +1,1 @@
+{"name":"ca_sin_recognizer","entity_type":"CA_SIN","version":"1.0.0","patterns":[{"name":"sin","regex":"\\b\\d{3}[\\s-]?\\d{3}[\\s-]?\\d{3}\\b","score":0.1}],"context_words":["sin","social insurance","canadian"],"context_score_boost":0.7,"validators":["luhn"],"supported_languages":["en","fr"]}

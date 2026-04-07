@@ -1,0 +1,1 @@
+{"name":"br_cpf_recognizer","entity_type":"BR_CPF","version":"1.0.0","patterns":[{"name":"cpf","regex":"\\b\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}\\b","score":0.5}],"context_words":["cpf","cadastro","contribuinte"],"context_score_boost":0.4,"validators":["cpf_checksum"],"supported_languages":["pt","en"]}

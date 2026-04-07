@@ -1,0 +1,21 @@
+# Rust
+target/
+Cargo.lock
+
+# TypeScript
+node_modules/
+dist/
+*.js
+*.d.ts
+*.js.map
+!jest.config.js
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

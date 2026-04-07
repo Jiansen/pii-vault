@@ -1,0 +1,15 @@
+{
+  "name": "us_passport_recognizer",
+  "entity_type": "US_PASSPORT",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "us_passport",
+      "regex": "\\b[A-Z]?\\d{8,9}\\b",
+      "score": 0.1
+    }
+  ],
+  "context_words": ["passport", "travel document"],
+  "context_score_boost": 0.7,
+  "supported_languages": ["en"]
+}

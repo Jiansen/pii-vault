@@ -1,0 +1,1 @@
+{"name":"es_nif_recognizer","entity_type":"ES_NIF","version":"1.0.0","patterns":[{"name":"nif","regex":"\\b\\d{8}[A-Z]\\b","score":0.3}],"context_words":["nif","dni","identificación fiscal","tax"],"context_score_boost":0.5,"supported_languages":["es","en"]}

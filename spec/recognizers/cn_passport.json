@@ -1,0 +1,20 @@
+{
+  "name": "cn_passport_recognizer",
+  "entity_type": "CN_PASSPORT",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "cn_passport_new",
+      "regex": "\\b[EeDdSsPp]\\d{8}\\b",
+      "score": 0.3
+    },
+    {
+      "name": "cn_passport_old",
+      "regex": "\\b[GgDdSsPp]\\d{8}\\b",
+      "score": 0.3
+    }
+  ],
+  "context_words": ["护照", "passport", "travel"],
+  "context_score_boost": 0.5,
+  "supported_languages": ["zh", "en"]
+}

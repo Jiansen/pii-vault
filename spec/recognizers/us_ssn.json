@@ -1,0 +1,21 @@
+{
+  "name": "us_ssn_recognizer",
+  "entity_type": "US_SSN",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "ssn_dashes",
+      "regex": "\\b\\d{3}-\\d{2}-\\d{4}\\b",
+      "score": 0.5
+    },
+    {
+      "name": "ssn_spaces",
+      "regex": "\\b\\d{3}\\s\\d{2}\\s\\d{4}\\b",
+      "score": 0.3
+    }
+  ],
+  "deny_list_patterns": ["^000", "^666", "^9"],
+  "context_words": ["social security", "ssn", "social", "ss#"],
+  "context_score_boost": 0.4,
+  "supported_languages": ["en"]
+}

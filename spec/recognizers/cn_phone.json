@@ -1,0 +1,20 @@
+{
+  "name": "cn_phone_recognizer",
+  "entity_type": "CN_PHONE",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "cn_mobile",
+      "regex": "\\b1[3-9]\\d{9}\\b",
+      "score": 0.4
+    },
+    {
+      "name": "cn_mobile_country_code",
+      "regex": "\\+86[\\s-]?1[3-9]\\d{9}\\b",
+      "score": 0.6
+    }
+  ],
+  "context_words": ["手机", "电话", "phone", "mobile", "联系"],
+  "context_score_boost": 0.3,
+  "supported_languages": ["zh", "en"]
+}

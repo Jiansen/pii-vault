@@ -1,0 +1,1 @@
+{"name":"fi_personal_id_recognizer","entity_type":"FI_PERSONAL_ID","version":"1.0.0","patterns":[{"name":"hetu","regex":"\\b\\d{6}[\\-+A]\\d{3}[\\dA-Z]\\b","score":0.5}],"context_words":["henkilötunnus","hetu","personal id","finnish id"],"context_score_boost":0.4,"supported_languages":["fi","en"]}

@@ -1,0 +1,1 @@
+{"name":"au_tfn_recognizer","entity_type":"AU_TFN","version":"1.0.0","patterns":[{"name":"tfn","regex":"\\b\\d{3}[\\s-]?\\d{3}[\\s-]?\\d{3}\\b","score":0.1}],"context_words":["tfn","tax file","australian tax"],"context_score_boost":0.7,"validators":["au_tfn_checksum"],"supported_languages":["en"]}

@@ -1,0 +1,1 @@
+{"name":"de_steuer_id_recognizer","entity_type":"DE_STEUER_ID","version":"1.0.0","patterns":[{"name":"steuer_id","regex":"\\b\\d{2}[\\s]?\\d{3}[\\s]?\\d{3}[\\s]?\\d{3}\\b","score":0.1}],"context_words":["steueridentifikationsnummer","steuer-id","steuernummer","tax id"],"context_score_boost":0.7,"supported_languages":["de","en"]}

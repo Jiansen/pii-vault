@@ -1,0 +1,1 @@
+{"name":"sg_nric_recognizer","entity_type":"SG_NRIC","version":"1.0.0","patterns":[{"name":"nric","regex":"\\b[STFGM]\\d{7}[A-Z]\\b","score":0.5}],"context_words":["nric","identity card","singapore id"],"context_score_boost":0.4,"supported_languages":["en"]}

@@ -1,0 +1,15 @@
+{
+  "name": "uuid_recognizer",
+  "entity_type": "UUID",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "uuid_v4",
+      "regex": "\\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\\b",
+      "score": 0.5
+    }
+  ],
+  "context_words": ["uuid", "guid", "id", "identifier"],
+  "context_score_boost": 0.2,
+  "supported_languages": null
+}

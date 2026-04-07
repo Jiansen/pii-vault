@@ -1,0 +1,1 @@
+{"name":"jp_passport_recognizer","entity_type":"JP_PASSPORT","version":"1.0.0","patterns":[{"name":"jp_passport","regex":"\\b[A-Z]{2}\\d{7}\\b","score":0.1}],"context_words":["パスポート","passport","旅券"],"context_score_boost":0.7,"supported_languages":["ja","en"]}

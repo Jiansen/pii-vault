@@ -1,0 +1,1 @@
+{"name":"au_medicare_recognizer","entity_type":"AU_MEDICARE","version":"1.0.0","patterns":[{"name":"medicare","regex":"\\b[2-6]\\d{3}[\\s-]?\\d{5}[\\s-]?\\d[\\s-]?\\d?\\b","score":0.2}],"context_words":["medicare","health","medical"],"context_score_boost":0.6,"supported_languages":["en"]}

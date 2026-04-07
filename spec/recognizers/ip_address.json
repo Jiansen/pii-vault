@@ -1,0 +1,21 @@
+{
+  "name": "ip_address_recognizer",
+  "entity_type": "IP_ADDRESS",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "ipv4",
+      "regex": "\\b(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\b",
+      "score": 0.5
+    },
+    {
+      "name": "ipv6",
+      "regex": "\\b(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\\b",
+      "score": 0.5
+    }
+  ],
+  "deny_list": ["0.0.0.0", "127.0.0.1", "255.255.255.255", "::1"],
+  "context_words": ["ip", "address", "host", "server"],
+  "context_score_boost": 0.3,
+  "supported_languages": null
+}

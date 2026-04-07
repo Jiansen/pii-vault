@@ -1,0 +1,15 @@
+{
+  "name": "uk_nino_recognizer",
+  "entity_type": "UK_NINO",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "nino",
+      "regex": "\\b[A-CEGHJ-PR-TW-Z]{2}[\\s-]?\\d{2}[\\s-]?\\d{2}[\\s-]?\\d{2}[\\s-]?[A-D]\\b",
+      "score": 0.5
+    }
+  ],
+  "context_words": ["national insurance", "nino", "ni number", "insurance number"],
+  "context_score_boost": 0.4,
+  "supported_languages": ["en"]
+}

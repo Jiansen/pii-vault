@@ -1,0 +1,20 @@
+{
+  "name": "us_driver_license_recognizer",
+  "entity_type": "US_DRIVER_LICENSE",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "dl_alpha_numeric",
+      "regex": "\\b[A-Z]\\d{3,8}\\b",
+      "score": 0.05
+    },
+    {
+      "name": "dl_numeric",
+      "regex": "\\b\\d{7,9}\\b",
+      "score": 0.01
+    }
+  ],
+  "context_words": ["driver", "license", "licence", "dl", "driving"],
+  "context_score_boost": 0.7,
+  "supported_languages": ["en"]
+}

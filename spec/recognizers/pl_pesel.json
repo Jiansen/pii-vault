@@ -1,0 +1,1 @@
+{"name":"pl_pesel_recognizer","entity_type":"PL_PESEL","version":"1.0.0","patterns":[{"name":"pesel","regex":"\\b\\d{11}\\b","score":0.05}],"context_words":["pesel","numer pesel","polish id"],"context_score_boost":0.7,"validators":["pesel_checksum"],"supported_languages":["pl","en"]}

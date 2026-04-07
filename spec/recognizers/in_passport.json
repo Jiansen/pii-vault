@@ -1,0 +1,1 @@
+{"name":"in_passport_recognizer","entity_type":"IN_PASSPORT","version":"1.0.0","patterns":[{"name":"in_passport","regex":"\\b[A-Z][1-9]\\d{6}\\b","score":0.1}],"context_words":["passport","travel","immigration"],"context_score_boost":0.7,"supported_languages":["en","hi"]}

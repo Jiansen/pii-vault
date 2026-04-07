@@ -1,0 +1,16 @@
+{
+  "name": "us_bank_routing_recognizer",
+  "entity_type": "US_BANK_ROUTING",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "routing_number",
+      "regex": "\\b\\d{9}\\b",
+      "score": 0.05
+    }
+  ],
+  "context_words": ["routing", "aba", "bank", "transit"],
+  "context_score_boost": 0.7,
+  "validators": ["aba_checksum"],
+  "supported_languages": ["en"]
+}

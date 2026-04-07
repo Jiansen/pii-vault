@@ -1,0 +1,15 @@
+{
+  "name": "url_recognizer",
+  "entity_type": "URL",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "url_full",
+      "regex": "https?://[^\\s<>\"']+",
+      "score": 0.5
+    }
+  ],
+  "context_words": ["url", "link", "website", "http", "href"],
+  "context_score_boost": 0.2,
+  "supported_languages": null
+}

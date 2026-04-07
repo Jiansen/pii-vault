@@ -1,0 +1,16 @@
+{
+  "name": "cn_bank_card_recognizer",
+  "entity_type": "CN_BANK_CARD",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "cn_bank_card",
+      "regex": "\\b[1-9]\\d{15,18}\\b",
+      "score": 0.1
+    }
+  ],
+  "context_words": ["银行卡", "bank card", "卡号", "储蓄卡", "借记卡", "信用卡"],
+  "context_score_boost": 0.6,
+  "validators": ["luhn"],
+  "supported_languages": ["zh", "en"]
+}

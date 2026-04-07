@@ -1,0 +1,1 @@
+{"name":"it_fiscal_code_recognizer","entity_type":"IT_FISCAL_CODE","version":"1.0.0","patterns":[{"name":"codice_fiscale","regex":"\\b[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]\\b","score":0.6}],"context_words":["codice fiscale","fiscal code","cf"],"context_score_boost":0.3,"supported_languages":["it","en"]}

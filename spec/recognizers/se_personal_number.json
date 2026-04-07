@@ -1,0 +1,1 @@
+{"name":"se_personal_number_recognizer","entity_type":"SE_PERSONAL_NUMBER","version":"1.0.0","patterns":[{"name":"personnummer","regex":"\\b\\d{6}[-+]?\\d{4}\\b","score":0.2}],"context_words":["personnummer","personal number","swedish id"],"context_score_boost":0.6,"supported_languages":["sv","en"]}

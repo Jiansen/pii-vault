@@ -1,0 +1,16 @@
+{
+  "name": "cn_id_card_recognizer",
+  "entity_type": "CN_ID_CARD",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "cn_id_18",
+      "regex": "\\b\\d{17}[\\dXx]\\b",
+      "score": 0.3
+    }
+  ],
+  "context_words": ["身份证", "身份证号", "id card", "identity", "居民"],
+  "context_score_boost": 0.5,
+  "validators": ["cn_id_checksum"],
+  "supported_languages": ["zh", "en"]
+}

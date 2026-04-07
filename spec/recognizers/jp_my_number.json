@@ -1,0 +1,1 @@
+{"name":"jp_my_number_recognizer","entity_type":"JP_MY_NUMBER","version":"1.0.0","patterns":[{"name":"my_number","regex":"\\b\\d{4}[\\s-]?\\d{4}[\\s-]?\\d{4}\\b","score":0.1}],"context_words":["マイナンバー","my number","個人番号","mynumber"],"context_score_boost":0.7,"supported_languages":["ja","en"]}
