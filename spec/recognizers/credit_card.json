@@ -1,30 +1,16 @@
 {
   "name": "credit_card_recognizer",
   "entity_type": "CREDIT_CARD",
-  "version": "1.0.0",
+  "version": "1.1.0",
+  "note": "Regex aligned with Microsoft Presidio (MIT License)",
   "patterns": [
     {
-      "name": "credit_card_generic",
-      "regex": "\\b(?:\\d{4}[\\-\\s]?){3}\\d{4}\\b",
+      "name": "all_credit_cards",
+      "regex": "\\b(?:4\\d{3}|5[0-5]\\d{2}|6\\d{3}|1\\d{3}|3\\d{3})[- ]?\\d{3,4}[- ]?\\d{3,4}[- ]?\\d{3,5}\\b",
       "score": 0.3
-    },
-    {
-      "name": "visa",
-      "regex": "\\b4\\d{3}[\\-\\s]?\\d{4}[\\-\\s]?\\d{4}[\\-\\s]?\\d{4}\\b",
-      "score": 0.4
-    },
-    {
-      "name": "mastercard",
-      "regex": "\\b5[1-5]\\d{2}[\\-\\s]?\\d{4}[\\-\\s]?\\d{4}[\\-\\s]?\\d{4}\\b",
-      "score": 0.4
-    },
-    {
-      "name": "amex",
-      "regex": "\\b3[47]\\d{2}[\\-\\s]?\\d{6}[\\-\\s]?\\d{5}\\b",
-      "score": 0.4
     }
   ],
-  "context_words": ["credit", "card", "visa", "mastercard", "amex", "debit", "信用卡", "银行卡"],
+  "context_words": ["credit", "card", "visa", "mastercard", "cc", "amex", "discover", "jcb", "diners", "maestro", "信用卡", "银行卡"],
   "context_score_boost": 0.4,
   "validators": ["luhn"],
   "supported_languages": null

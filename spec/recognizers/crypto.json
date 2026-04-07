@@ -1,16 +1,12 @@
 {
   "name": "crypto_recognizer",
   "entity_type": "CRYPTO",
-  "version": "1.0.0",
+  "version": "1.1.0",
+  "note": "Regex aligned with Microsoft Presidio (MIT License)",
   "patterns": [
     {
-      "name": "bitcoin_p2pkh",
-      "regex": "\\b[13][a-km-zA-HJ-NP-Z1-9]{25,34}\\b",
-      "score": 0.5
-    },
-    {
-      "name": "bitcoin_bech32",
-      "regex": "\\bbc1[a-zA-HJ-NP-Z0-9]{25,87}\\b",
+      "name": "bitcoin_all",
+      "regex": "\\b(?:bc1|[13])[a-zA-HJ-NP-Z0-9]{25,59}\\b",
       "score": 0.5
     },
     {
@@ -19,7 +15,7 @@
       "score": 0.5
     }
   ],
-  "context_words": ["bitcoin", "btc", "ethereum", "eth", "wallet", "crypto", "blockchain"],
+  "context_words": ["wallet", "btc", "bitcoin", "crypto", "ethereum", "eth", "blockchain"],
   "context_score_boost": 0.3,
   "supported_languages": null
 }
