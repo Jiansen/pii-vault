@@ -2,11 +2,26 @@
 
 **Presidio-compatible PII detection, anonymization, and reversible tokenization.**
 
+[![Crates.io](https://img.shields.io/crates/v/pii-vault)](https://crates.io/crates/pii-vault)
+[![npm](https://img.shields.io/npm/v/pii-vault)](https://www.npmjs.com/package/pii-vault)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE-MIT)
+
 Multi-language implementations sharing a common specification. Detect 40+ PII entity types, anonymize with multiple strategies (replace, mask, hash, redact), and reversibly tokenize with a persistent vault.
+
+## Install
+
+```bash
+# Rust
+cargo add pii-vault
+
+# TypeScript / JavaScript
+npm install pii-vault
+```
 
 ## Features
 
 - **29 built-in recognizers** covering 15 countries (US, UK, CN, IN, AU, DE, IT, ES, KR, SG, FI, SE, PL, JP, FR, CA, BR)
+- **Presidio-aligned regex patterns** for core entity types (email, credit card, IP, crypto)
 - **Shared spec**: Recognizer patterns defined as JSON, consumed by all language implementations
 - **Vault**: Deterministic, reversible tokenization with collision handling and context disambiguation
 - **Multiple anonymization strategies**: Replace, Mask, Hash, Redact, Vault
