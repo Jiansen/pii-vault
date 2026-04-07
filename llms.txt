@@ -1,0 +1,48 @@
+# PII Vault
+
+> Presidio-compatible PII detection, anonymization, and reversible tokenization. Multi-language (Rust, TypeScript, Python, Go, WASM). Zero runtime dependencies.
+
+## What is PII Vault?
+
+PII Vault is an open-source library for detecting and anonymizing Personally Identifiable Information (PII) in text. It provides:
+
+- 39 built-in regex recognizers covering 20 countries
+- 51 PII entity types (email, SSN, credit card, IBAN, passport, ID numbers, etc.)
+- 5 anonymization strategies: Replace, Mask, Hash, Redact, and reversible Vault tokenization
+- Checksum validators (Luhn, IBAN Mod 97, Chinese ID, German Tax ID, Australian ABN/TFN/ACN/Medicare)
+- Context-aware confidence scoring
+- Spec-driven: all patterns defined in JSON, shared across all language implementations
+
+## Install
+
+```
+cargo add pii-vault       # Rust
+npm install pii-vault      # TypeScript/JavaScript
+pip install pii-vault      # Python
+go get github.com/Jiansen/pii-vault/go  # Go
+```
+
+## Live Demo (WASM, runs in browser)
+
+https://jiansen.github.io/pii-vault/
+
+## Key Differentiators vs Presidio
+
+1. **Zero dependencies**: No spaCy, stanza, or transformers needed
+2. **Multi-language native**: Rust + TypeScript (not Python-only)
+3. **WASM**: Runs in the browser, 1.2MB, no server needed
+4. **Vault**: Deterministic reversible tokenization (Presidio only has AES encrypt/decrypt)
+5. **Spec-driven**: JSON patterns shared across all implementations
+6. **Performance**: Rust native speed
+
+## Supported Entity Types
+
+EMAIL_ADDRESS, PHONE_NUMBER, CREDIT_CARD, CRYPTO, IP_ADDRESS, MAC_ADDRESS, IBAN_CODE, URL, UUID, US_SSN, US_ITIN, US_PASSPORT, US_DRIVER_LICENSE, UK_NHS, UK_NINO, CN_ID_CARD, CN_PHONE, CN_PASSPORT, IN_AADHAAR, IN_PAN, AU_ABN, AU_ACN, AU_TFN, AU_MEDICARE, DE_TAX_ID, DE_PASSPORT, DE_ID_CARD, DE_VAT_ID, DE_HANDELSREGISTER, IT_FISCAL_CODE, ES_NIE, ES_NIF, KR_RRN, SG_NRIC, FI_PERSONAL_ID, SE_PERSONAL_NUMBER, PL_PESEL, JP_MY_NUMBER, FR_NIR, CA_SIN, BR_CPF
+
+## Links
+
+- GitHub: https://github.com/Jiansen/pii-vault
+- crates.io: https://crates.io/crates/pii-vault
+- npm: https://www.npmjs.com/package/pii-vault
+- PyPI: https://pypi.org/project/pii-vault/
+- License: MIT

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PII Vault — WASM Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; padding: 2rem; max-width: 800px; margin: 0 auto; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff; }
+    .subtitle { color: #888; margin-bottom: 2rem; font-size: 0.9rem; }
+    .badge { display: inline-block; background: #1a3a2a; color: #4ade80; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px; }
+    textarea { width: 100%; height: 120px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; padding: 1rem; font-size: 0.95rem; resize: vertical; font-family: inherit; }
+    textarea:focus { outline: none; border-color: #4ade80; }
+    button { background: #4ade80; color: #0a0a0a; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 1rem; font-size: 0.95rem; }
+    button:hover { background: #22c55e; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .results { margin-top: 1.5rem; }
+    .result-card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+    .entity-type { font-weight: 600; color: #4ade80; font-size: 0.85rem; }
+    .entity-text { font-family: 'SF Mono', monospace; background: #2a2a2a; padding: 2px 6px; border-radius: 4px; }
+    .score { color: #888; font-size: 0.8rem; }
+    .anonymized { margin-top: 1.5rem; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1rem; }
+    .anonymized pre { white-space: pre-wrap; word-break: break-word; color: #f59e0b; font-family: 'SF Mono', monospace; }
+    .status { margin-top: 1rem; font-size: 0.85rem; color: #888; }
+    .perf { color: #4ade80; }
+    label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <h1>PII Vault <span class="badge">WASM</span></h1>
+  <p class="subtitle">Presidio-compatible PII detection running 100% in your browser. No data leaves your device.</p>
+
+  <label for="input">Enter text with PII:</label>
+  <textarea id="input" placeholder="e.g., Email alice@company.com, SSN 123-45-6789, IBAN DE89370400440532013000, Card 4111111111111111">Email alice@company.com, SSN 123-45-6789, Card 4111111111111111</textarea>
+  <button id="analyze" disabled>Loading WASM...</button>
+  <div class="status" id="status"></div>
+
+  <div class="results" id="results"></div>
+  <div class="anonymized" id="anonymized" style="display:none">
+    <label>Anonymized:</label>
+    <pre id="anon-text"></pre>
+  </div>
+
+  <script type="module">
+    import init, { WasmAnalyzer, WasmVault } from './pkg/pii_vault_wasm.js';
+
+    const RECOGNIZERS = [
+      { name: "email", entity_type: "EMAIL_ADDRESS", version: "1.0.0",
+        patterns: [{ name: "email", regex: "\\b[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}\\b", score: 0.5 }],
+        context_words: ["email", "mail"], context_score_boost: 0.4, validators: [] },
+      { name: "us_ssn", entity_type: "US_SSN", version: "1.0.0",
+        patterns: [{ name: "ssn", regex: "\\b\\d{3}-\\d{2}-\\d{4}\\b", score: 0.5 }],
+        context_words: ["ssn", "social security"], context_score_boost: 0.4, validators: [] },
+      { name: "credit_card", entity_type: "CREDIT_CARD", version: "1.0.0",
+        patterns: [{ name: "cc", regex: "\\b(?:4\\d{3}|5[0-5]\\d{2}|6\\d{3}|3\\d{3})[-\\s]?\\d{3,4}[-\\s]?\\d{3,4}[-\\s]?\\d{3,5}\\b", score: 0.3 }],
+        context_words: ["card", "credit", "visa"], context_score_boost: 0.4, validators: ["luhn"] },
+      { name: "ip", entity_type: "IP_ADDRESS", version: "1.0.0",
+        patterns: [{ name: "ipv4", regex: "\\b(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\b", score: 0.5 }],
+        context_words: ["ip", "server"], context_score_boost: 0.4, deny_list: ["0.0.0.0", "127.0.0.1"], validators: [] },
+      { name: "iban", entity_type: "IBAN_CODE", version: "1.0.0",
+        patterns: [{ name: "iban", regex: "\\b[A-Z]{2}\\d{2}[A-Za-z0-9]{4}(?:[A-Za-z0-9]{4}){1,7}[A-Za-z0-9]{1,4}\\b", score: 0.5 }],
+        context_words: ["iban", "bank"], context_score_boost: 0.4, validators: ["iban"] },
+    ];
+
+    let analyzer;
+
+    async function setup() {
+      const status = document.getElementById('status');
+      const btn = document.getElementById('analyze');
+
+      status.textContent = 'Initializing WASM...';
+      const t0 = performance.now();
+      await init();
+      const t1 = performance.now();
+
+      analyzer = new WasmAnalyzer(JSON.stringify(RECOGNIZERS));
+      const t2 = performance.now();
+
+      status.innerHTML = `WASM loaded in <span class="perf">${(t1-t0).toFixed(0)}ms</span>, analyzer ready in <span class="perf">${(t2-t1).toFixed(0)}ms</span>`;
+      btn.textContent = 'Detect PII';
+      btn.disabled = false;
+    }
+
+    document.getElementById('analyze').addEventListener('click', () => {
+      const text = document.getElementById('input').value;
+      if (!text) return;
+
+      const t0 = performance.now();
+      const entities = analyzer.analyze(text, 0.0);
+      const anonymized = analyzer.anonymize(text, 0.0);
+      const t1 = performance.now();
+
+      const resultsDiv = document.getElementById('results');
+      if (entities.length === 0) {
+        resultsDiv.innerHTML = '<div class="result-card">No PII detected.</div>';
+      } else {
+        resultsDiv.innerHTML = entities.map(e => `
+          <div class="result-card">
+            <span class="entity-type">${e.entity_type}</span>
+            <span class="entity-text">${e.text}</span>
+            <span class="score">score: ${e.score.toFixed(2)}</span>
+          </div>
+        `).join('');
+      }
+
+      const anonDiv = document.getElementById('anonymized');
+      anonDiv.style.display = 'block';
+      document.getElementById('anon-text').textContent = anonymized;
+
+      document.getElementById('status').innerHTML += ` | Analysis: <span class="perf">${(t1-t0).toFixed(1)}ms</span> (${entities.length} entities)`;
+    });
+
+    setup();
+  </script>
+</body>
+</html>
