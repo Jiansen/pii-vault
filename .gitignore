@@ -10,6 +10,9 @@ dist/
 *.js.map
 !jest.config.js
 
+# GitHub Pages WASM demo (allow compiled assets)
+!docs/pkg/**
+
 # IDE
 .idea/
 .vscode/

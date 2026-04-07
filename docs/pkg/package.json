@@ -1,0 +1,21 @@
+{
+  "name": "@jiansen/pii-vault-wasm",
+  "type": "module",
+  "description": "PII Vault WASM bindings — Presidio-compatible PII detection in the browser",
+  "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jiansen/pii-vault"
+  },
+  "files": [
+    "pii_vault_wasm_bg.wasm",
+    "pii_vault_wasm.js",
+    "pii_vault_wasm.d.ts"
+  ],
+  "main": "pii_vault_wasm.js",
+  "types": "pii_vault_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
