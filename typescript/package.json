@@ -4,14 +4,21 @@
   "description": "Presidio-compatible PII detection, anonymization, and reversible tokenization",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": ["dist", "README.md", "LICENSE-MIT"],
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "npm run build",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "lint": "tsc --noEmit"
   },
-  "keywords": ["pii", "privacy", "anonymization", "redaction", "presidio"],
+  "keywords": ["pii", "privacy", "anonymization", "redaction", "presidio", "gdpr"],
   "license": "MIT",
-  "repository": "https://github.com/Jiansen/pii-vault",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Jiansen/pii-vault.git",
+    "directory": "typescript"
+  },
+  "homepage": "https://github.com/Jiansen/pii-vault",
   "devDependencies": {
     "@types/jest": "^29",
     "jest": "^29",
