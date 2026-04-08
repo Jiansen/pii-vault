@@ -16,6 +16,8 @@ pub struct VaultEntry {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Vault {
     pub version: u32,
+    #[serde(default)]
+    pub salt: String,
     pub entries: Vec<VaultEntry>,
     #[serde(skip)]
     index: HashMap<String, usize>,
@@ -24,7 +26,8 @@ pub struct Vault {
 impl Default for Vault {
     fn default() -> Self {
         Self {
-            version: 1,
+            version: 2,
+            salt: Self::generate_salt(),
             entries: Vec::new(),
             index: HashMap::new(),
         }
@@ -36,8 +39,28 @@ impl Vault {
         Self::default()
     }
 
+    fn generate_salt() -> String {
+        let mut bytes = [0u8; 16];
+        getrandom::getrandom(&mut bytes).unwrap_or_else(|_| {
+            // Fallback: use system time as entropy source
+            let t = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_nanos();
+            for (i, b) in bytes.iter_mut().enumerate() {
+                *b = ((t >> (i * 8)) & 0xFF) as u8;
+            }
+        });
+        bytes.iter().map(|b| format!("{:02x}", b)).collect()
+    }
+
     pub fn from_json(json: &str) -> Result<Self, serde_json::Error> {
         let mut vault: Self = serde_json::from_str(json)?;
+        if vault.version < 2 || vault.salt.is_empty() {
+            // v1 vault: generate a new salt; old entries retain their original tokens
+            vault.salt = Self::generate_salt();
+            vault.version = 2;
+        }
         vault.rebuild_index();
         Ok(vault)
     }
@@ -74,16 +97,16 @@ impl Vault {
         }
 
         let hash_input = if context.is_empty() {
-            format!("{}:{}", category, original)
+            format!("{}:{}:{}", self.salt, category, original)
         } else {
-            format!("{}:{}:{}", category, original, context)
+            format!("{}:{}:{}:{}", self.salt, category, original, context)
         };
         let mut token = Self::stable_token(category, &hash_input);
 
         let mut attempt = 0u32;
         while self.entries.iter().any(|e| e.token == token && (e.original != original || e.context != context)) {
             attempt += 1;
-            let input = format!("{}:{}:{}:{}", category, original, context, attempt);
+            let input = format!("{}:{}:{}:{}:{}", self.salt, category, original, context, attempt);
             token = Self::stable_token(category, &input);
         }
 
@@ -122,9 +145,11 @@ impl Vault {
     }
 
     fn stable_token(category: &str, input: &str) -> String {
-        let hash = input.bytes().fold(0u32, |h, b| h.wrapping_mul(31).wrapping_add(b as u32));
-        let short = format!("{:04x}", hash & 0xFFFF);
-        format!("[{}:{}]", category.to_uppercase(), short)
+        // FNV-1a 32-bit hash for better distribution
+        let hash = input.bytes().fold(0x811c9dc5u32, |h, b| {
+            (h ^ b as u32).wrapping_mul(0x01000193)
+        });
+        format!("[{}:{:08x}]", category.to_uppercase(), hash)
     }
 
     fn utc_now() -> String {
@@ -208,11 +233,14 @@ mod tests {
     }
 
     #[test]
-    fn test_token_format() {
+    fn test_token_format_8hex() {
         let mut vault = Vault::new();
         let token = vault.tokenize("email_address", "test@example.com");
         assert!(token.starts_with("[EMAIL_ADDRESS:"));
         assert!(token.ends_with(']'));
+        let hex_part = &token["[EMAIL_ADDRESS:".len()..token.len() - 1];
+        assert_eq!(hex_part.len(), 8, "token should have 8 hex chars");
+        assert!(hex_part.chars().all(|c| c.is_ascii_hexdigit()));
     }
 
     #[test]
@@ -221,5 +249,57 @@ mod tests {
         let token = vault.tokenize("email_address", "test@example.com");
         let entry = vault.lookup_token(&token).unwrap();
         assert_eq!(entry.original, "test@example.com");
+    }
+
+    #[test]
+    fn test_different_vaults_different_tokens() {
+        let mut v1 = Vault::new();
+        let mut v2 = Vault::new();
+        let t1 = v1.tokenize("person", "Zhang Wei");
+        let t2 = v2.tokenize("person", "Zhang Wei");
+        assert_ne!(t1, t2, "different vaults should produce different tokens (salt isolation)");
+    }
+
+    #[test]
+    fn test_json_roundtrip_preserves_salt() {
+        let mut vault = Vault::new();
+        let token = vault.tokenize("person", "Alice");
+        let json = vault.to_json().unwrap();
+        let mut loaded = Vault::from_json(&json).unwrap();
+        let token2 = loaded.tokenize("person", "Alice");
+        assert_eq!(token, token2, "loaded vault should produce same token for same input");
+        assert_eq!(loaded.entry_count(), 1);
+    }
+
+    #[test]
+    fn test_v1_vault_backward_compat() {
+        let v1_json = r#"{
+            "version": 1,
+            "entries": [{
+                "token": "[PERSON:e702]",
+                "original": "Zhang Wei",
+                "category": "person",
+                "context": "",
+                "created_at": "2026-04-01T00:00:00Z",
+                "last_used": "2026-04-01T00:00:00Z",
+                "use_count": 1
+            }]
+        }"#;
+        let vault = Vault::from_json(v1_json).unwrap();
+        assert_eq!(vault.entry_count(), 1);
+        let entry = vault.lookup_token("[PERSON:e702]").unwrap();
+        assert_eq!(entry.original, "Zhang Wei");
+        let restored = vault.detokenize("Hello [PERSON:e702]");
+        assert_eq!(restored, "Hello Zhang Wei");
+    }
+
+    #[test]
+    fn test_to_json_version_2() {
+        let vault = Vault::new();
+        let json = vault.to_json().unwrap();
+        let data: serde_json::Value = serde_json::from_str(&json).unwrap();
+        assert_eq!(data["version"], 2);
+        assert!(data["salt"].is_string());
+        assert_eq!(data["salt"].as_str().unwrap().len(), 32);
     }
 }

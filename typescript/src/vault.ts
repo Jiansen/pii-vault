@@ -10,23 +10,47 @@ export interface VaultEntry {
 
 export interface VaultData {
   version: number;
+  salt?: string;
   entries: VaultEntry[];
 }
 
 export class Vault {
   private entries: VaultEntry[] = [];
   private index = new Map<string, number>();
+  private salt: string;
+
+  constructor() {
+    this.salt = Vault.generateSalt();
+  }
+
+  private static generateSalt(): string {
+    if (typeof globalThis.crypto !== 'undefined' && globalThis.crypto.getRandomValues) {
+      const bytes = new Uint8Array(16);
+      globalThis.crypto.getRandomValues(bytes);
+      return Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+    }
+    // Fallback for environments without Web Crypto
+    let s = '';
+    for (let i = 0; i < 32; i++) {
+      s += Math.floor(Math.random() * 16).toString(16);
+    }
+    return s;
+  }
 
   static fromJson(json: string): Vault {
     const data: VaultData = JSON.parse(json);
     const vault = new Vault();
     vault.entries = data.entries;
+    if (data.version >= 2 && data.salt) {
+      vault.salt = data.salt;
+    }
+    // v1 vaults: keep generated salt; old entries retain their original tokens
     vault.rebuildIndex();
     return vault;
   }
 
   toJson(): string {
-    const data: VaultData = { version: 1, entries: this.entries };
+    const data: VaultData = { version: 2, salt: this.salt, entries: this.entries };
     return JSON.stringify(data, null, 2);
   }
 
@@ -46,13 +70,15 @@ export class Vault {
       return entry.token;
     }
 
-    const hashInput = context ? `${category}:${original}:${context}` : `${category}:${original}`;
+    const hashInput = context
+      ? `${this.salt}:${category}:${original}:${context}`
+      : `${this.salt}:${category}:${original}`;
     let token = Vault.stableToken(category, hashInput);
 
     let attempt = 0;
     while (this.entries.some(e => e.token === token && (e.original !== original || e.context !== context))) {
       attempt++;
-      token = Vault.stableToken(category, `${category}:${original}:${context}:${attempt}`);
+      token = Vault.stableToken(category, `${this.salt}:${category}:${original}:${context}:${attempt}`);
     }
 
     const entry: VaultEntry = {
@@ -97,11 +123,13 @@ export class Vault {
   }
 
   private static stableToken(category: string, input: string): string {
-    let hash = 0;
+    // FNV-1a 32-bit hash for better distribution
+    let hash = 0x811c9dc5;
     for (let i = 0; i < input.length; i++) {
-      hash = (Math.imul(hash, 31) + input.charCodeAt(i)) >>> 0;
+      hash ^= input.charCodeAt(i);
+      hash = Math.imul(hash, 0x01000193) >>> 0;
     }
-    const short = (hash & 0xffff).toString(16).padStart(4, '0');
-    return `[${category.toUpperCase()}:${short}]`;
+    const hex = hash.toString(16).padStart(8, '0');
+    return `[${category.toUpperCase()}:${hex}]`;
   }
 }
