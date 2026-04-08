@@ -53,7 +53,7 @@ export class Anonymizer {
           break;
         case 'vault':
           replacement = vault
-            ? vault.tokenize(entity.entityType.name.toLowerCase(), original)
+            ? vault.tokenize(entity.entityType.name, original)
             : `<${entity.entityType.name}>`;
           break;
       }
