@@ -22,3 +22,5 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+benchmark/results_*.json
+benchmark/comparison.json

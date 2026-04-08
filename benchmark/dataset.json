@@ -1,0 +1,554 @@
+[
+  {
+    "id": 1,
+    "text": "Contact John at john.doe@company.com for details.",
+    "entities": [{"type": "EMAIL_ADDRESS", "start": 16, "end": 36, "text": "john.doe@company.com"}]
+  },
+  {
+    "id": 2,
+    "text": "His SSN is 123-45-6789 and he lives in New York.",
+    "entities": [{"type": "US_SSN", "start": 11, "end": 22, "text": "123-45-6789"}]
+  },
+  {
+    "id": 3,
+    "text": "Credit card: 4111111111111111, exp 12/26.",
+    "entities": [{"type": "CREDIT_CARD", "start": 13, "end": 29, "text": "4111111111111111"}]
+  },
+  {
+    "id": 4,
+    "text": "Call me at +1-555-867-5309 or email alice@startup.io.",
+    "entities": [
+      {"type": "PHONE_NUMBER", "start": 11, "end": 26, "text": "+1-555-867-5309"},
+      {"type": "EMAIL_ADDRESS", "start": 36, "end": 52, "text": "alice@startup.io"}
+    ]
+  },
+  {
+    "id": 5,
+    "text": "IBAN: DE89370400440532013000 for wire transfer.",
+    "entities": [{"type": "IBAN_CODE", "start": 6, "end": 28, "text": "DE89370400440532013000"}]
+  },
+  {
+    "id": 6,
+    "text": "Server IP is 192.168.1.100 and backup at 10.0.0.1.",
+    "entities": [
+      {"type": "IP_ADDRESS", "start": 13, "end": 26, "text": "192.168.1.100"},
+      {"type": "IP_ADDRESS", "start": 41, "end": 49, "text": "10.0.0.1"}
+    ]
+  },
+  {
+    "id": 7,
+    "text": "Send BTC to 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa please.",
+    "entities": [{"type": "CRYPTO", "start": 12, "end": 46, "text": "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa"}]
+  },
+  {
+    "id": 8,
+    "text": "The weather is nice today. Let's go for a walk in the park.",
+    "entities": []
+  },
+  {
+    "id": 9,
+    "text": "Our product code is ABC-12-3456 and version 2.0.1.",
+    "entities": []
+  },
+  {
+    "id": 10,
+    "text": "The year 1985 was significant. Reference number: 98765.",
+    "entities": []
+  },
+  {
+    "id": 11,
+    "text": "Patient SSN 078-05-1120 with card 4532015112830366, email patient@hospital.org.",
+    "entities": [
+      {"type": "US_SSN", "start": 12, "end": 23, "text": "078-05-1120"},
+      {"type": "CREDIT_CARD", "start": 34, "end": 50, "text": "4532015112830366"},
+      {"type": "EMAIL_ADDRESS", "start": 58, "end": 78, "text": "patient@hospital.org"}
+    ]
+  },
+  {
+    "id": 12,
+    "text": "IBAN: GB29NWBK60161331926819 belongs to the trust account.",
+    "entities": [{"type": "IBAN_CODE", "start": 6, "end": 28, "text": "GB29NWBK60161331926819"}]
+  },
+  {
+    "id": 13,
+    "text": "My Ethereum wallet: 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD38.",
+    "entities": [{"type": "CRYPTO", "start": 20, "end": 62, "text": "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD38"}]
+  },
+  {
+    "id": 14,
+    "text": "His phone is (212) 555-0199 and her phone is +44 20 7946 0958.",
+    "entities": [
+      {"type": "PHONE_NUMBER", "start": 14, "end": 28, "text": "(212) 555-0199"},
+      {"type": "PHONE_NUMBER", "start": 46, "end": 62, "text": "+44 20 7946 0958"}
+    ]
+  },
+  {
+    "id": 15,
+    "text": "MAC address: 00:1A:2B:3C:4D:5E for device registration.",
+    "entities": [{"type": "MAC_ADDRESS", "start": 13, "end": 30, "text": "00:1A:2B:3C:4D:5E"}]
+  },
+  {
+    "id": 16,
+    "text": "Tax ID (Germany): 65929970489 for the fiscal year.",
+    "entities": [{"type": "DE_TAX_ID", "start": 18, "end": 29, "text": "65929970489"}]
+  },
+  {
+    "id": 17,
+    "text": "The code review meeting is at 3pm. Project budget is $1.5M.",
+    "entities": []
+  },
+  {
+    "id": 18,
+    "text": "Version 10.0.0.1 of the software was released last Friday.",
+    "entities": []
+  },
+  {
+    "id": 19,
+    "text": "Enter code 4111-1111-1111-1111 at checkout for 20% off.",
+    "entities": [{"type": "CREDIT_CARD", "start": 11, "end": 30, "text": "4111-1111-1111-1111"}]
+  },
+  {
+    "id": 20,
+    "text": "The serial number is 1234567890123456 and the batch is 789.",
+    "entities": []
+  },
+  {
+    "id": 21,
+    "text": "Please forward to billing@acme.com and cc admin@acme.com.",
+    "entities": [
+      {"type": "EMAIL_ADDRESS", "start": 18, "end": 34, "text": "billing@acme.com"},
+      {"type": "EMAIL_ADDRESS", "start": 42, "end": 56, "text": "admin@acme.com"}
+    ]
+  },
+  {
+    "id": 22,
+    "text": "UK NHS number: 943 476 5919 for the patient record.",
+    "entities": [{"type": "UK_NHS", "start": 15, "end": 27, "text": "943 476 5919"}]
+  },
+  {
+    "id": 23,
+    "text": "Australian TFN: 123 456 782 on the tax return.",
+    "entities": [{"type": "AU_TFN", "start": 16, "end": 27, "text": "123 456 782"}]
+  },
+  {
+    "id": 24,
+    "text": "The PIN is 1234 and the access code is 5678.",
+    "entities": []
+  },
+  {
+    "id": 25,
+    "text": "Flight QF 123 departs at 14:30 from gate B2.",
+    "entities": []
+  },
+  {
+    "id": 26,
+    "text": "Transfer IBAN: FR7630006000011234567890189 amount EUR 5000.",
+    "entities": [{"type": "IBAN_CODE", "start": 15, "end": 42, "text": "FR7630006000011234567890189"}]
+  },
+  {
+    "id": 27,
+    "text": "German passport: C01X00T47 valid until 2028.",
+    "entities": [{"type": "DE_PASSPORT", "start": 17, "end": 26, "text": "C01X00T47"}]
+  },
+  {
+    "id": 28,
+    "text": "Email me at test.user+tag@gmail.com for the newsletter.",
+    "entities": [{"type": "EMAIL_ADDRESS", "start": 12, "end": 35, "text": "test.user+tag@gmail.com"}]
+  },
+  {
+    "id": 29,
+    "text": "IPv6: 2001:0db8:85a3:0000:0000:8a2e:0370:7334 for the server.",
+    "entities": [{"type": "IP_ADDRESS", "start": 6, "end": 45, "text": "2001:0db8:85a3:0000:0000:8a2e:0370:7334"}]
+  },
+  {
+    "id": 30,
+    "text": "Brazilian CPF: 123.456.789-09 on file.",
+    "entities": [{"type": "BR_CPF", "start": 15, "end": 29, "text": "123.456.789-09"}]
+  },
+  {
+    "id": 31,
+    "text": "Please contact support at help@example.com or call 1-800-555-0100.",
+    "entities": [
+      {"type": "EMAIL_ADDRESS", "start": 25, "end": 42, "text": "help@example.com"},
+      {"type": "PHONE_NUMBER", "start": 51, "end": 65, "text": "1-800-555-0100"}
+    ]
+  },
+  {
+    "id": 32,
+    "text": "Indian Aadhaar: 2234 5678 9012 linked to PAN: ABCDE1234F.",
+    "entities": [
+      {"type": "IN_AADHAAR", "start": 16, "end": 31, "text": "2234 5678 9012"},
+      {"type": "IN_PAN", "start": 47, "end": 57, "text": "ABCDE1234F"}
+    ]
+  },
+  {
+    "id": 33,
+    "text": "We processed 1,234 orders totaling $56,789.00 last quarter.",
+    "entities": []
+  },
+  {
+    "id": 34,
+    "text": "Canadian SIN: 046 454 286 for employment verification.",
+    "entities": [{"type": "CA_SIN", "start": 14, "end": 25, "text": "046 454 286"}]
+  },
+  {
+    "id": 35,
+    "text": "Singapore NRIC: S1234567D issued in 2020.",
+    "entities": [{"type": "SG_NRIC", "start": 16, "end": 25, "text": "S1234567D"}]
+  },
+  {
+    "id": 36,
+    "text": "Conference room A is booked from 10:00 to 11:30.",
+    "entities": []
+  },
+  {
+    "id": 37,
+    "text": "US passport: 123456789 valid until March 2030.",
+    "entities": [{"type": "US_PASSPORT", "start": 13, "end": 22, "text": "123456789"}]
+  },
+  {
+    "id": 38,
+    "text": "The ABN is 51 824 753 556 for the Australian company.",
+    "entities": [{"type": "AU_ABN", "start": 11, "end": 25, "text": "51 824 753 556"}]
+  },
+  {
+    "id": 39,
+    "text": "Date: 2026-04-08, ticket #12345, priority: high.",
+    "entities": []
+  },
+  {
+    "id": 40,
+    "text": "His SSN 219-09-9999 was compromised in the breach. Card 5500000000000004 also exposed.",
+    "entities": [
+      {"type": "US_SSN", "start": 8, "end": 19, "text": "219-09-9999"},
+      {"type": "CREDIT_CARD", "start": 56, "end": 72, "text": "5500000000000004"}
+    ]
+  },
+  {
+    "id": 41,
+    "text": "The article mentions page 123-45-6789 as a reference. Not a real SSN.",
+    "entities": []
+  },
+  {
+    "id": 42,
+    "text": "Send the invoice to accounts@megacorp.co.uk before Friday.",
+    "entities": [{"type": "EMAIL_ADDRESS", "start": 20, "end": 44, "text": "accounts@megacorp.co.uk"}]
+  },
+  {
+    "id": 43,
+    "text": "Chinese phone: 13800138000 for delivery contact.",
+    "entities": [{"type": "CN_PHONE", "start": 15, "end": 26, "text": "13800138000"}]
+  },
+  {
+    "id": 44,
+    "text": "Identity card: 110101198503150013 on file for verification.",
+    "entities": [{"type": "CN_ID_CARD", "start": 15, "end": 33, "text": "110101198503150013"}]
+  },
+  {
+    "id": 45,
+    "text": "URL: https://example.com/user/12345 in the report.",
+    "entities": [{"type": "URL", "start": 5, "end": 35, "text": "https://example.com/user/12345"}]
+  },
+  {
+    "id": 46,
+    "text": "The ISBN is 978-3-16-148410-0 and the DOI is 10.1234/test.",
+    "entities": []
+  },
+  {
+    "id": 47,
+    "text": "Italian fiscal code: RSSMRA85M01H501Z for tax purposes.",
+    "entities": [{"type": "IT_FISCAL_CODE", "start": 21, "end": 37, "text": "RSSMRA85M01H501Z"}]
+  },
+  {
+    "id": 48,
+    "text": "Spanish NIF: 12345678Z for the business registration.",
+    "entities": [{"type": "ES_NIF", "start": 13, "end": 22, "text": "12345678Z"}]
+  },
+  {
+    "id": 49,
+    "text": "Korean RRN: 850101-1234567 on the document.",
+    "entities": [{"type": "KR_RRN", "start": 12, "end": 26, "text": "850101-1234567"}]
+  },
+  {
+    "id": 50,
+    "text": "Dear Dr. Smith, patient record #A-2024-0567 is ready for review.",
+    "entities": []
+  },
+  {
+    "id": 51,
+    "text": "UUID: 550e8400-e29b-41d4-a716-446655440000 in the database.",
+    "entities": [{"type": "UUID", "start": 6, "end": 42, "text": "550e8400-e29b-41d4-a716-446655440000"}]
+  },
+  {
+    "id": 52,
+    "text": "Bank routing: 021000021 for domestic transfers.",
+    "entities": [{"type": "US_BANK_ROUTING", "start": 14, "end": 23, "text": "021000021"}]
+  },
+  {
+    "id": 53,
+    "text": "Medicare card: 2428 77813 2 for the claim.",
+    "entities": [{"type": "AU_MEDICARE", "start": 15, "end": 27, "text": "2428 77813 2"}]
+  },
+  {
+    "id": 54,
+    "text": "Temperature is 98.6°F, blood pressure 120/80, weight 75kg.",
+    "entities": []
+  },
+  {
+    "id": 55,
+    "text": "German VAT: DE123456789 on the invoice header.",
+    "entities": [{"type": "DE_VAT_ID", "start": 12, "end": 23, "text": "DE123456789"}]
+  },
+  {
+    "id": 56,
+    "text": "ITIN: 900-70-0000 for the non-resident filing.",
+    "entities": [{"type": "US_ITIN", "start": 6, "end": 17, "text": "900-70-0000"}]
+  },
+  {
+    "id": 57,
+    "text": "Patient: Zhang Wei, phone 13912345678, email zhangwei@hospital.cn, ID 110101199003078534.",
+    "entities": [
+      {"type": "CN_PHONE", "start": 27, "end": 38, "text": "13912345678"},
+      {"type": "EMAIL_ADDRESS", "start": 46, "end": 66, "text": "zhangwei@hospital.cn"},
+      {"type": "CN_ID_CARD", "start": 71, "end": 89, "text": "110101199003078534"}
+    ]
+  },
+  {
+    "id": 58,
+    "text": "The population of Tokyo is 13.96 million. Area code 03 is for Tokyo.",
+    "entities": []
+  },
+  {
+    "id": 59,
+    "text": "Contact: info@company.de, phone +49 30 12345678, IBAN DE44500105175407324931.",
+    "entities": [
+      {"type": "EMAIL_ADDRESS", "start": 9, "end": 24, "text": "info@company.de"},
+      {"type": "PHONE_NUMBER", "start": 32, "end": 48, "text": "+49 30 12345678"},
+      {"type": "IBAN_CODE", "start": 55, "end": 77, "text": "DE44500105175407324931"}
+    ]
+  },
+  {
+    "id": 60,
+    "text": "Error code: 0x8007045D, disk sector 1234567890.",
+    "entities": []
+  },
+  {
+    "id": 61,
+    "text": "ACN: 004 085 616 for the registered company.",
+    "entities": [{"type": "AU_ACN", "start": 5, "end": 16, "text": "004 085 616"}]
+  },
+  {
+    "id": 62,
+    "text": "Swedish ID: 850101-1234 on the application.",
+    "entities": [{"type": "SE_PERSONAL_NUMBER", "start": 12, "end": 24, "text": "850101-1234"}]
+  },
+  {
+    "id": 63,
+    "text": "Finnish ID: 131052-308T for identification.",
+    "entities": [{"type": "FI_PERSONAL_ID", "start": 12, "end": 24, "text": "131052-308T"}]
+  },
+  {
+    "id": 64,
+    "text": "Polish PESEL: 44051401458 registered in the system.",
+    "entities": [{"type": "PL_PESEL", "start": 14, "end": 25, "text": "44051401458"}]
+  },
+  {
+    "id": 65,
+    "text": "Total items: 16, order weight: 2.5kg, shipping to floor 3.",
+    "entities": []
+  },
+  {
+    "id": 66,
+    "text": "Spanish NIE: X1234567L for the residency application.",
+    "entities": [{"type": "ES_NIE", "start": 13, "end": 22, "text": "X1234567L"}]
+  },
+  {
+    "id": 67,
+    "text": "Handelsregister: HRB 12345 Frankfurt am Main.",
+    "entities": [{"type": "DE_HANDELSREGISTER", "start": 17, "end": 26, "text": "HRB 12345"}]
+  },
+  {
+    "id": 68,
+    "text": "Meeting notes: discussed Q4 targets, no action items.",
+    "entities": []
+  },
+  {
+    "id": 69,
+    "text": "UK driving licence: MORGA657054SM9IJ 35 issued 2020.",
+    "entities": [{"type": "UK_DRIVING_LICENCE", "start": 20, "end": 39, "text": "MORGA657054SM9IJ 35"}]
+  },
+  {
+    "id": 70,
+    "text": "SSN 000-00-0000 is not a valid social security number.",
+    "entities": []
+  },
+  {
+    "id": 71,
+    "text": "Visa card 4916338506082832 approved. Mastercard 5425233430109903 declined.",
+    "entities": [
+      {"type": "CREDIT_CARD", "start": 10, "end": 26, "text": "4916338506082832"},
+      {"type": "CREDIT_CARD", "start": 48, "end": 64, "text": "5425233430109903"}
+    ]
+  },
+  {
+    "id": 72,
+    "text": "The RGB value is #FF5733 and the hex code is 0xDEADBEEF.",
+    "entities": []
+  },
+  {
+    "id": 73,
+    "text": "Japanese passport: TK1234567 issued in Osaka.",
+    "entities": [{"type": "JP_PASSPORT", "start": 19, "end": 28, "text": "TK1234567"}]
+  },
+  {
+    "id": 74,
+    "text": "My Number: 123456789012 for the Japanese tax filing.",
+    "entities": [{"type": "JP_MY_NUMBER", "start": 11, "end": 23, "text": "123456789012"}]
+  },
+  {
+    "id": 75,
+    "text": "China bank card: 6225880137023968 for direct deposit.",
+    "entities": [{"type": "CN_BANK_CARD", "start": 17, "end": 33, "text": "6225880137023968"}]
+  },
+  {
+    "id": 76,
+    "text": "French NIR: 1 85 12 75 108 214 36 for social security.",
+    "entities": [{"type": "FR_NIR", "start": 12, "end": 34, "text": "1 85 12 75 108 214 36"}]
+  },
+  {
+    "id": 77,
+    "text": "Coordinates: 40.7128° N, 74.0060° W (New York City).",
+    "entities": []
+  },
+  {
+    "id": 78,
+    "text": "Chinese passport: E12345678 valid until 2030.",
+    "entities": [{"type": "CN_PASSPORT", "start": 18, "end": 27, "text": "E12345678"}]
+  },
+  {
+    "id": 79,
+    "text": "Indian passport: A1234567 issued in Mumbai.",
+    "entities": [{"type": "IN_PASSPORT", "start": 17, "end": 25, "text": "A1234567"}]
+  },
+  {
+    "id": 80,
+    "text": "The ZIP code is 10001 and the area code is 212.",
+    "entities": []
+  },
+  {
+    "id": 81,
+    "text": "Send payment to IBAN: ES9121000418450200051332 ref: INV-2024.",
+    "entities": [{"type": "IBAN_CODE", "start": 22, "end": 46, "text": "ES9121000418450200051332"}]
+  },
+  {
+    "id": 82,
+    "text": "DE Steuer-ID: 02476291358 linked to the account.",
+    "entities": [{"type": "DE_STEUER_ID", "start": 14, "end": 25, "text": "02476291358"}]
+  },
+  {
+    "id": 83,
+    "text": "Customer feedback: great service, 5 stars! Would recommend.",
+    "entities": []
+  },
+  {
+    "id": 84,
+    "text": "Reach us at support@vibeful.io or +86 10 1234 5678.",
+    "entities": [
+      {"type": "EMAIL_ADDRESS", "start": 12, "end": 30, "text": "support@vibeful.io"},
+      {"type": "PHONE_NUMBER", "start": 34, "end": 51, "text": "+86 10 1234 5678"}
+    ]
+  },
+  {
+    "id": 85,
+    "text": "Litecoin: LTC1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4.",
+    "entities": [{"type": "CRYPTO", "start": 10, "end": 52, "text": "LTC1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4"}]
+  },
+  {
+    "id": 86,
+    "text": "Model number: RTX-4090-16GB, firmware v3.2.1.",
+    "entities": []
+  },
+  {
+    "id": 87,
+    "text": "US driver license: D1234567 issued in California.",
+    "entities": [{"type": "US_DRIVER_LICENSE", "start": 19, "end": 27, "text": "D1234567"}]
+  },
+  {
+    "id": 88,
+    "text": "German ID card: T220001293 issued in Berlin.",
+    "entities": [{"type": "DE_ID_CARD", "start": 16, "end": 26, "text": "T220001293"}]
+  },
+  {
+    "id": 89,
+    "text": "The API returned status 200 with 1.2MB payload in 340ms.",
+    "entities": []
+  },
+  {
+    "id": 90,
+    "text": "Contact: alice@example.com, bob@example.com, charlie@example.com.",
+    "entities": [
+      {"type": "EMAIL_ADDRESS", "start": 9, "end": 26, "text": "alice@example.com"},
+      {"type": "EMAIL_ADDRESS", "start": 28, "end": 43, "text": "bob@example.com"},
+      {"type": "EMAIL_ADDRESS", "start": 45, "end": 64, "text": "charlie@example.com"}
+    ]
+  },
+  {
+    "id": 91,
+    "text": "Password: xK9#mN2$pL! (do not share).",
+    "entities": []
+  },
+  {
+    "id": 92,
+    "text": "The patient's blood type is O+ and BMI is 24.5.",
+    "entities": []
+  },
+  {
+    "id": 93,
+    "text": "Employee badge: 000123, department: Engineering, floor: 4.",
+    "entities": []
+  },
+  {
+    "id": 94,
+    "text": "SWIFT: DEUTDEFF for Deutsche Bank Frankfurt.",
+    "entities": []
+  },
+  {
+    "id": 95,
+    "text": "Phone +353 1 234 5678 (Dublin office) or +353 87 123 4567 (mobile).",
+    "entities": [
+      {"type": "PHONE_NUMBER", "start": 6, "end": 22, "text": "+353 1 234 5678"},
+      {"type": "PHONE_NUMBER", "start": 41, "end": 58, "text": "+353 87 123 4567"}
+    ]
+  },
+  {
+    "id": 96,
+    "text": "UK NINO: QQ 12 34 56 C for benefits claim.",
+    "entities": [{"type": "UK_NINO", "start": 9, "end": 22, "text": "QQ 12 34 56 C"}]
+  },
+  {
+    "id": 97,
+    "text": "AWS access key: AKIAIOSFODNN7EXAMPLE (not real).",
+    "entities": []
+  },
+  {
+    "id": 98,
+    "text": "Card 3782822463100050 and IBAN IT60X0542811101000000123456.",
+    "entities": [
+      {"type": "CREDIT_CARD", "start": 5, "end": 21, "text": "3782822463100050"},
+      {"type": "IBAN_CODE", "start": 27, "end": 54, "text": "IT60X0542811101000000123456"}
+    ]
+  },
+  {
+    "id": 99,
+    "text": "身份证号码: 110101198503150013，手机号: 13800138000。",
+    "entities": [
+      {"type": "CN_ID_CARD", "start": 6, "end": 24, "text": "110101198503150013"},
+      {"type": "CN_PHONE", "start": 29, "end": 40, "text": "13800138000"}
+    ]
+  },
+  {
+    "id": 100,
+    "text": "User agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36.",
+    "entities": []
+  }
+]
