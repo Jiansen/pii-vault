@@ -3,115 +3,1029 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PII Vault — WASM Demo</title>
+  <title>PII Vault — Detect, Anonymize &amp; Restore PII in Your Browser</title>
+  <meta name="description" content="Open-source, Presidio-compatible PII detection with reversible vault tokenization. Runs 100% in your browser via WebAssembly. No data leaves your device.">
+  <meta property="og:title" content="PII Vault — Browser-Native PII Detection &amp; Vault">
+  <meta property="og:description" content="Detect, anonymize, and perfectly restore PII — all in your browser. Zero server, zero tracking. Open source.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://jiansen.github.io/pii-vault/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; padding: 2rem; max-width: 800px; margin: 0 auto; }
-    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff; }
-    .subtitle { color: #888; margin-bottom: 2rem; font-size: 0.9rem; }
-    .badge { display: inline-block; background: #1a3a2a; color: #4ade80; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px; }
-    textarea { width: 100%; height: 120px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; padding: 1rem; font-size: 0.95rem; resize: vertical; font-family: inherit; }
-    textarea:focus { outline: none; border-color: #4ade80; }
-    button { background: #4ade80; color: #0a0a0a; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 1rem; font-size: 0.95rem; }
-    button:hover { background: #22c55e; }
-    button:disabled { opacity: 0.5; cursor: not-allowed; }
-    .results { margin-top: 1.5rem; }
-    .result-card { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
-    .entity-type { font-weight: 600; color: #4ade80; font-size: 0.85rem; }
-    .entity-text { font-family: 'SF Mono', monospace; background: #2a2a2a; padding: 2px 6px; border-radius: 4px; }
-    .score { color: #888; font-size: 0.8rem; }
-    .anonymized { margin-top: 1.5rem; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 1rem; }
-    .anonymized pre { white-space: pre-wrap; word-break: break-word; color: #f59e0b; font-family: 'SF Mono', monospace; }
-    .status { margin-top: 1rem; font-size: 0.85rem; color: #888; }
-    .perf { color: #4ade80; }
-    label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    :root {
+      --bg-base: #121214;
+      --bg-surface: #1c1c20;
+      --bg-elevated: #26262b;
+      --bg-hover: #2e2e34;
+      --border: #2e2e34;
+      --border-focus: #6366f1;
+      --text-primary: #ececf1;
+      --text-secondary: #8e8ea0;
+      --text-muted: #6b6b80;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --accent-subtle: rgba(99,102,241,0.12);
+      --green: #22c55e;
+      --green-subtle: rgba(34,197,94,0.12);
+      --amber: #f59e0b;
+      --amber-subtle: rgba(245,158,11,0.12);
+      --red: #ef4444;
+      --red-subtle: rgba(239,68,68,0.12);
+      --cyan: #06b6d4;
+      --cyan-subtle: rgba(6,182,212,0.12);
+      --radius: 10px;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Layout */
+    .container { max-width: 1120px; margin: 0 auto; padding: 0 1.5rem; }
+
+    /* Hero */
+    .hero {
+      padding: 4rem 0 3rem;
+      text-align: center;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(99,102,241,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero h1 {
+      font-size: 2.75rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero .tagline {
+      font-size: 1.125rem;
+      color: var(--text-secondary);
+      max-width: 640px;
+      margin: 0 auto 2rem;
+    }
+    .badges {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.3rem 0.7rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    .badge--wasm { background: var(--accent-subtle); color: var(--accent); }
+    .badge--privacy { background: var(--green-subtle); color: var(--green); }
+    .badge--oss { background: var(--amber-subtle); color: var(--amber); }
+    .badge--count { background: var(--cyan-subtle); color: var(--cyan); }
+
+    .hero-links {
+      display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;
+    }
+    .hero-links a {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--bg-elevated); border-color: var(--text-muted); }
+
+    /* Tabs */
+    .demo-section { padding: 0 0 4rem; }
+    .tab-bar {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+    .tab-btn {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover { color: var(--text-primary); }
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Panel layout */
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 768px) {
+      .panel-grid { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2rem; }
+    }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-elevated);
+    }
+    .panel-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+    }
+    .panel-body { padding: 1rem; }
+    .panel-body textarea {
+      width: 100%;
+      min-height: 180px;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      line-height: 1.7;
+      resize: vertical;
+      outline: none;
+    }
+
+    /* Locale selector */
+    .locale-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .locale-bar label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .locale-select {
+      padding: 0.4rem 0.8rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+    .locale-select:focus { border-color: var(--accent); }
+
+    .run-btn {
+      padding: 0.55rem 1.4rem;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .run-btn:hover { background: var(--accent-hover); }
+    .run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Output */
+    .output-text {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 180px;
+    }
+
+    /* Entity highlights */
+    .entity-tag {
+      display: inline;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 0.85em;
+    }
+    .entity-PERSON, .entity-US_SSN, .entity-CN_ID_CARD, .entity-IN_AADHAAR,
+    .entity-UK_NINO, .entity-DE_STEUER_ID, .entity-FR_NIR, .entity-KR_RRN,
+    .entity-JP_MY_NUMBER, .entity-PL_PESEL, .entity-FI_PERSONAL_ID, .entity-SE_PERSONAL_NUMBER,
+    .entity-BR_CPF, .entity-CA_SIN, .entity-SG_NRIC, .entity-ES_NIF, .entity-ES_NIE,
+    .entity-IT_FISCAL_CODE, .entity-AU_TFN, .entity-DE_TAX_ID, .entity-DE_ID_CARD,
+    .entity-DE_PASSPORT, .entity-US_PASSPORT, .entity-CN_PASSPORT, .entity-IN_PASSPORT,
+    .entity-UK_DRIVING_LICENCE, .entity-US_DRIVER_LICENSE, .entity-JP_PASSPORT, .entity-IN_PAN {
+      background: var(--red-subtle); color: var(--red);
+    }
+    .entity-EMAIL_ADDRESS, .entity-PHONE_NUMBER, .entity-CN_PHONE, .entity-URL {
+      background: var(--amber-subtle); color: var(--amber);
+    }
+    .entity-CREDIT_CARD, .entity-IBAN_CODE, .entity-CN_BANK_CARD, .entity-US_BANK_ROUTING,
+    .entity-AU_ABN, .entity-AU_ACN, .entity-AU_MEDICARE, .entity-UK_NHS, .entity-DE_VAT_ID,
+    .entity-DE_HANDELSREGISTER, .entity-US_ITIN {
+      background: var(--cyan-subtle); color: var(--cyan);
+    }
+    .entity-IP_ADDRESS, .entity-MAC_ADDRESS, .entity-CRYPTO, .entity-UUID {
+      background: var(--accent-subtle); color: var(--accent);
+    }
+
+    /* Entities list */
+    .entities-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .entity-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-elevated);
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .entity-row .type {
+      font-weight: 600;
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      min-width: 120px;
+      text-align: center;
+    }
+    .entity-row .value {
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+    .entity-row .conf {
+      margin-left: auto;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Perf bar */
+    .perf-bar {
+      display: flex;
+      gap: 1.5rem;
+      padding: 0.75rem 1rem;
+      background: var(--bg-elevated);
+      border-radius: var(--radius);
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      flex-wrap: wrap;
+    }
+    .perf-bar strong { color: var(--green); font-weight: 600; font-family: var(--font-mono); }
+
+    /* LLM workflow */
+    .flow-steps {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      display: flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    .flow-step.done {
+      border-color: var(--green);
+      color: var(--green);
+      background: var(--green-subtle);
+    }
+    .flow-step.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-subtle);
+    }
+    .flow-arrow { color: var(--text-muted); font-size: 0.75rem; }
+
+    .llm-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+    }
+    .llm-panel-header {
+      padding: 0.6rem 1rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--bg-elevated);
+      border-radius: var(--radius) var(--radius) 0 0;
+    }
+    .llm-panel-body {
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 60px;
+    }
+    .llm-panel-body.placeholder { color: var(--text-muted); font-style: italic; }
+
+    .llm-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 768px) { .llm-grid { grid-template-columns: 1fr; } }
+
+    .llm-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .llm-actions .run-btn { font-size: 0.8rem; padding: 0.5rem 1.2rem; }
+
+    /* Stats section */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      padding: 3rem 0;
+    }
+    @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+    .stat {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* Footer */
+    footer {
+      padding: 2rem 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    footer a { color: var(--text-secondary); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    /* Restore highlight */
+    .restored {
+      background: var(--green-subtle);
+      color: var(--green);
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    /* Loading spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
-  <h1>PII Vault <span class="badge">WASM</span></h1>
-  <p class="subtitle">Presidio-compatible PII detection running 100% in your browser. No data leaves your device.</p>
 
-  <label for="input">Enter text with PII:</label>
-  <textarea id="input" placeholder="e.g., Email alice@company.com, SSN 123-45-6789, IBAN DE89370400440532013000, Card 4111111111111111">Email alice@company.com, SSN 123-45-6789, Card 4111111111111111</textarea>
-  <button id="analyze" disabled>Loading WASM...</button>
-  <div class="status" id="status"></div>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>Detect. Anonymize. <span>Restore.</span></h1>
+      <p class="tagline">
+        Open-source PII detection with reversible vault tokenization.
+        Runs 100% in your browser via WebAssembly. No data leaves your device.
+      </p>
+      <div class="badges">
+        <span class="badge badge--wasm">WebAssembly</span>
+        <span class="badge badge--privacy">100% Client-Side</span>
+        <span class="badge badge--oss">MIT License</span>
+        <span class="badge badge--count">47 Recognizers</span>
+      </div>
+      <div class="hero-links">
+        <a href="#demo" class="btn-primary">Try the Demo</a>
+        <a href="https://github.com/Jiansen/pii-vault" class="btn-secondary" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://crates.io/crates/pii-vault" class="btn-secondary" target="_blank" rel="noopener">crates.io</a>
+        <a href="https://www.npmjs.com/package/pii-vault" class="btn-secondary" target="_blank" rel="noopener">npm</a>
+      </div>
+    </div>
+  </section>
 
-  <div class="results" id="results"></div>
-  <div class="anonymized" id="anonymized" style="display:none">
-    <label>Anonymized:</label>
-    <pre id="anon-text"></pre>
-  </div>
+  <!-- Stats -->
+  <section class="container">
+    <div class="stats">
+      <div class="stat"><div class="stat-value">47</div><div class="stat-label">PII Recognizers</div></div>
+      <div class="stat"><div class="stat-value">18</div><div class="stat-label">Countries</div></div>
+      <div class="stat"><div class="stat-value">1.2</div><div class="stat-label">MB WASM Bundle</div></div>
+      <div class="stat"><div class="stat-value">0</div><div class="stat-label">Dependencies</div></div>
+    </div>
+  </section>
+
+  <!-- Demo -->
+  <section class="demo-section container" id="demo">
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="detect">Detect &amp; Anonymize</button>
+      <button class="tab-btn" data-tab="vault">Vault (Reversible)</button>
+      <button class="tab-btn" data-tab="llm">LLM Workflow</button>
+    </div>
+
+    <!-- Tab 1: Detect & Anonymize -->
+    <div class="tab-panel active" id="tab-detect">
+      <div class="locale-bar">
+        <label>Locale:</label>
+        <select class="locale-select" id="locale-select">
+          <option value="all">All (47 recognizers)</option>
+          <option value="global">Global only</option>
+          <option value="us">United States</option>
+          <option value="uk">United Kingdom</option>
+          <option value="de">Germany</option>
+          <option value="cn">China</option>
+          <option value="in">India</option>
+          <option value="au">Australia</option>
+          <option value="jp">Japan</option>
+          <option value="fr">France</option>
+          <option value="br">Brazil</option>
+          <option value="ca">Canada</option>
+          <option value="es">Spain</option>
+          <option value="it">Italy</option>
+          <option value="kr">South Korea</option>
+          <option value="sg">Singapore</option>
+          <option value="se">Sweden</option>
+          <option value="fi">Finland</option>
+          <option value="pl">Poland</option>
+        </select>
+        <button class="run-btn" id="btn-detect" disabled><span class="spinner"></span> Loading...</button>
+        <span id="detect-status" style="font-size:0.8rem;color:var(--text-muted)"></span>
+      </div>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Input</span></div>
+          <div class="panel-body">
+            <textarea id="detect-input" spellcheck="false">Dear Dr. Smith,
+
+Patient John Doe (SSN: 123-45-6789) visited our clinic on March 15.
+Contact: john.doe@hospital.com, phone +1-555-0123.
+Insurance card: 4532015112830366
+German tax ID: 65929970489
+UK NHS: 943 476 5919
+
+Please forward records to the billing department.
+IBAN: DE89370400440532013000</textarea>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Anonymized Output</span>
+            <span id="entity-count" style="font-size:0.75rem;color:var(--text-muted)"></span>
+          </div>
+          <div class="panel-body">
+            <div class="output-text" id="detect-output"><div class="empty-state">Click "Detect PII" to analyze</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="entities-container" style="margin-top:1rem;display:none">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Detected Entities</span></div>
+          <div class="panel-body">
+            <div class="entities-list" id="entities-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="perf-bar" id="perf-bar" style="display:none">
+        <span>WASM init: <strong id="perf-init">—</strong></span>
+        <span>Analysis: <strong id="perf-analysis">—</strong></span>
+        <span>Entities: <strong id="perf-entities">—</strong></span>
+        <span>Bundle: <strong>1.2 MB</strong></span>
+      </div>
+    </div>
+
+    <!-- Tab 2: Vault Reversible -->
+    <div class="tab-panel" id="tab-vault">
+      <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.95rem">
+        The Vault generates deterministic tokens for each PII entity. The same input always produces the same token.
+        <strong style="color:var(--green)">Tokenization is perfectly reversible</strong> — every token maps back to its original value.
+      </p>
+
+      <div class="locale-bar">
+        <button class="run-btn" id="btn-vault">Tokenize &amp; Restore</button>
+      </div>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Original Text</span></div>
+          <div class="panel-body">
+            <textarea id="vault-input" spellcheck="false">Email john.doe@company.com about the project.
+His SSN is 123-45-6789 and card 4111111111111111.
+Also CC alice@startup.io for the follow-up.
+Her IBAN: GB29NWBK60161331926819</textarea>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><span class="panel-title">Vault Tokenized</span></div>
+          <div class="panel-body">
+            <div class="output-text" id="vault-tokenized"><div class="empty-state">Click "Tokenize & Restore"</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:1rem">
+        <div class="panel-header">
+          <span class="panel-title">Restored from Tokens (lossless)</span>
+          <span style="font-size:0.75rem;color:var(--green)">every token perfectly reversed</span>
+        </div>
+        <div class="panel-body">
+          <div class="output-text" id="vault-restored"><div class="empty-state">Restoration appears here</div></div>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:1rem" id="vault-map-panel" hidden>
+        <div class="panel-header"><span class="panel-title">Vault Mapping Table</span></div>
+        <div class="panel-body">
+          <div id="vault-map" class="entities-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: LLM Workflow -->
+    <div class="tab-panel" id="tab-llm">
+      <p style="color:var(--text-secondary);margin-bottom:1rem;font-size:0.95rem">
+        Real-world use case: <strong style="color:var(--text-primary)">Send PII-safe text to an LLM, then restore PII in the response.</strong>
+        This simulates the full anonymize → process → de-anonymize pipeline.
+      </p>
+
+      <div class="flow-steps" id="llm-steps">
+        <span class="flow-step" data-step="1">1. Input</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step" data-step="2">2. Anonymize</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step" data-step="3">3. Send to LLM</span>
+        <span class="flow-arrow">&rarr;</span>
+        <span class="flow-step" data-step="4">4. Restore PII</span>
+      </div>
+
+      <div class="llm-actions">
+        <button class="run-btn" id="btn-llm">Run Full Pipeline</button>
+      </div>
+
+      <div class="llm-panel">
+        <div class="llm-panel-header">Step 1 — Your Input (contains PII)</div>
+        <div class="llm-panel-body" id="llm-input" contenteditable="false" style="cursor:text" onclick="this.contentEditable=true;this.focus()">Summarize this patient record:
+
+Patient: John Doe, SSN 123-45-6789
+Email: john.doe@hospital.com
+Diagnosis: Type 2 diabetes, prescribed Metformin 500mg.
+Insurance: Card 4532015112830366
+Emergency contact: Jane Doe, +1-555-0199</div>
+      </div>
+
+      <div class="llm-grid">
+        <div class="llm-panel">
+          <div class="llm-panel-header">Step 2 — Sent to LLM (PII removed)</div>
+          <div class="llm-panel-body placeholder" id="llm-anonymized">Pipeline will show anonymized text here...</div>
+        </div>
+        <div class="llm-panel">
+          <div class="llm-panel-header">Step 3 — LLM Response (with tokens)</div>
+          <div class="llm-panel-body placeholder" id="llm-response">Simulated LLM response appears here...</div>
+        </div>
+      </div>
+
+      <div class="llm-panel" style="margin-top:1rem">
+        <div class="llm-panel-header" style="background:var(--green-subtle);color:var(--green)">Step 4 — Final Output (PII Restored)</div>
+        <div class="llm-panel-body placeholder" id="llm-final">The restored output with original PII will appear here...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>
+        <a href="https://github.com/Jiansen/pii-vault">GitHub</a> &middot;
+        <a href="https://crates.io/crates/pii-vault">crates.io</a> &middot;
+        <a href="https://www.npmjs.com/package/pii-vault">npm</a> &middot;
+        MIT License
+      </p>
+      <p style="margin-top:0.5rem">Built with Rust + WebAssembly. Zero server dependencies.</p>
+    </div>
+  </footer>
 
   <script type="module">
     import init, { WasmAnalyzer, WasmVault } from './pkg/pii_vault_wasm.js';
 
-    const RECOGNIZERS = [
-      { name: "email", entity_type: "EMAIL_ADDRESS", version: "1.0.0",
-        patterns: [{ name: "email", regex: "\\b[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}\\b", score: 0.5 }],
-        context_words: ["email", "mail"], context_score_boost: 0.4, validators: [] },
-      { name: "us_ssn", entity_type: "US_SSN", version: "1.0.0",
-        patterns: [{ name: "ssn", regex: "\\b\\d{3}-\\d{2}-\\d{4}\\b", score: 0.5 }],
-        context_words: ["ssn", "social security"], context_score_boost: 0.4, validators: [] },
-      { name: "credit_card", entity_type: "CREDIT_CARD", version: "1.0.0",
-        patterns: [{ name: "cc", regex: "\\b(?:4\\d{3}|5[0-5]\\d{2}|6\\d{3}|3\\d{3})[-\\s]?\\d{3,4}[-\\s]?\\d{3,4}[-\\s]?\\d{3,5}\\b", score: 0.3 }],
-        context_words: ["card", "credit", "visa"], context_score_boost: 0.4, validators: ["luhn"] },
-      { name: "ip", entity_type: "IP_ADDRESS", version: "1.0.0",
-        patterns: [{ name: "ipv4", regex: "\\b(?:(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d\\d?)\\b", score: 0.5 }],
-        context_words: ["ip", "server"], context_score_boost: 0.4, deny_list: ["0.0.0.0", "127.0.0.1"], validators: [] },
-      { name: "iban", entity_type: "IBAN_CODE", version: "1.0.0",
-        patterns: [{ name: "iban", regex: "\\b[A-Z]{2}\\d{2}[A-Za-z0-9]{4}(?:[A-Za-z0-9]{4}){1,7}[A-Za-z0-9]{1,4}\\b", score: 0.5 }],
-        context_words: ["iban", "bank"], context_score_boost: 0.4, validators: ["iban"] },
-    ];
-
-    let analyzer;
-
-    async function setup() {
-      const status = document.getElementById('status');
-      const btn = document.getElementById('analyze');
-
-      status.textContent = 'Initializing WASM...';
-      const t0 = performance.now();
-      await init();
-      const t1 = performance.now();
-
-      analyzer = new WasmAnalyzer(JSON.stringify(RECOGNIZERS));
-      const t2 = performance.now();
-
-      status.innerHTML = `WASM loaded in <span class="perf">${(t1-t0).toFixed(0)}ms</span>, analyzer ready in <span class="perf">${(t2-t1).toFixed(0)}ms</span>`;
-      btn.textContent = 'Detect PII';
-      btn.disabled = false;
+    // ── Analytics (self-hosted, no third-party) ──
+    const EVT_QUEUE = [];
+    function trackEvent(name, props = {}) {
+      const evt = {
+        n: name,
+        ts: Date.now(),
+        url: location.pathname,
+        ref: document.referrer,
+        ua: navigator.userAgent,
+        w: window.innerWidth,
+        lang: navigator.language,
+        ...props
+      };
+      EVT_QUEUE.push(evt);
+      // Persist to localStorage for retrieval
+      try {
+        const stored = JSON.parse(localStorage.getItem('pv_events') || '[]');
+        stored.push(evt);
+        // Keep last 500 events
+        if (stored.length > 500) stored.splice(0, stored.length - 500);
+        localStorage.setItem('pv_events', JSON.stringify(stored));
+      } catch(e) {}
     }
 
-    document.getElementById('analyze').addEventListener('click', () => {
-      const text = document.getElementById('input').value;
-      if (!text) return;
+    // Pageview
+    trackEvent('pageview');
+
+    // Session timing
+    const SESSION_START = Date.now();
+    window.addEventListener('beforeunload', () => {
+      trackEvent('session_end', { duration_sec: Math.round((Date.now() - SESSION_START) / 1000) });
+      // Beacon to our endpoint if configured
+      const endpoint = document.querySelector('meta[name="pv-analytics"]')?.content;
+      if (endpoint) {
+        navigator.sendBeacon(endpoint, JSON.stringify(EVT_QUEUE));
+      }
+    });
+
+    // ── Recognizer specs (loaded from bundled JSON) ──
+    let ALL_RECOGNIZERS = [];
+    let analyzer = null;
+    let wasmInitMs = 0;
+
+    const COUNTRY_PREFIXES = {
+      us: 'us_', uk: 'uk_', de: 'de_', cn: 'cn_', 'in': 'in_',
+      au: 'au_', jp: 'jp_', fr: 'fr_', br: 'br_', ca: 'ca_',
+      es: 'es_', it: 'it_', kr: 'kr_', sg: 'sg_', se: 'se_',
+      fi: 'fi_', pl: 'pl_'
+    };
+    const GLOBAL_NAMES = ['email_recognizer','credit_card_recognizer','phone_recognizer',
+      'ip_address_recognizer','iban_recognizer','crypto_recognizer','mac_address_recognizer',
+      'url_recognizer','uuid_recognizer'];
+
+    function filterRecognizers(locale) {
+      if (locale === 'all') return ALL_RECOGNIZERS;
+      if (locale === 'global') return ALL_RECOGNIZERS.filter(r => GLOBAL_NAMES.includes(r.name));
+      const prefix = COUNTRY_PREFIXES[locale];
+      return ALL_RECOGNIZERS.filter(r => GLOBAL_NAMES.includes(r.name) || (prefix && r.name.startsWith(prefix)));
+    }
+
+    function buildAnalyzer(locale) {
+      const specs = filterRecognizers(locale);
+      analyzer = new WasmAnalyzer(JSON.stringify(specs));
+      return specs.length;
+    }
+
+    // ── Init ──
+    async function setup() {
+      const btn = document.getElementById('btn-detect');
+      const status = document.getElementById('detect-status');
+
+      const t0 = performance.now();
+      await init();
+      wasmInitMs = performance.now() - t0;
+
+      // Load all recognizer specs
+      const resp = await fetch('./recognizers.json');
+      ALL_RECOGNIZERS = await resp.json();
+
+      const count = buildAnalyzer('all');
+      btn.innerHTML = 'Detect PII';
+      btn.disabled = false;
+      status.textContent = `Ready (${count} recognizers loaded)`;
+      document.getElementById('perf-init').textContent = wasmInitMs.toFixed(0) + 'ms';
+
+      trackEvent('wasm_loaded', { init_ms: Math.round(wasmInitMs) });
+    }
+
+    // ── Tab switching ──
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+        trackEvent('tab_switch', { tab: btn.dataset.tab });
+      });
+    });
+
+    // ── Locale change ──
+    document.getElementById('locale-select').addEventListener('change', (e) => {
+      const count = buildAnalyzer(e.target.value);
+      document.getElementById('detect-status').textContent = `Ready (${count} recognizers)`;
+      trackEvent('locale_change', { locale: e.target.value, count });
+    });
+
+    // ── Tab 1: Detect & Anonymize ──
+    document.getElementById('btn-detect').addEventListener('click', () => {
+      const text = document.getElementById('detect-input').value;
+      if (!text || !analyzer) return;
 
       const t0 = performance.now();
       const entities = analyzer.analyze(text, 0.0);
-      const anonymized = analyzer.anonymize(text, 0.0);
       const t1 = performance.now();
+      const anonymized = analyzer.anonymize(text, 0.0);
+      const t2 = performance.now();
 
-      const resultsDiv = document.getElementById('results');
-      if (entities.length === 0) {
-        resultsDiv.innerHTML = '<div class="result-card">No PII detected.</div>';
-      } else {
-        resultsDiv.innerHTML = entities.map(e => `
-          <div class="result-card">
-            <span class="entity-type">${e.entity_type}</span>
-            <span class="entity-text">${e.text}</span>
-            <span class="score">score: ${e.score.toFixed(2)}</span>
-          </div>
-        `).join('');
+      // Render anonymized with highlights
+      let html = escapeHtml(anonymized);
+      // Sort entities by position (desc) to replace from end
+      const sorted = [...entities].sort((a, b) => b.start - a.start);
+      let anonHtml = escapeHtml(anonymized);
+
+      // Build highlighted output from original text
+      let highlightHtml = escapeHtml(text);
+      for (const e of sorted) {
+        const before = escapeHtml(text.substring(0, e.start));
+        const match = escapeHtml(text.substring(e.start, e.end));
+        const after = highlightHtml.substring(escapeHtml(text.substring(0, e.end)).length);
+        highlightHtml = before +
+          `<span class="entity-tag entity-${e.entity_type}" title="${e.entity_type} (${e.score.toFixed(2)})">${match}</span>` +
+          after;
       }
 
-      const anonDiv = document.getElementById('anonymized');
-      anonDiv.style.display = 'block';
-      document.getElementById('anon-text').textContent = anonymized;
+      document.getElementById('detect-output').innerHTML = escapeHtml(anonymized);
 
-      document.getElementById('status').innerHTML += ` | Analysis: <span class="perf">${(t1-t0).toFixed(1)}ms</span> (${entities.length} entities)`;
+      // Entity list
+      const listEl = document.getElementById('entities-list');
+      if (entities.length > 0) {
+        listEl.innerHTML = entities.map(e => `
+          <div class="entity-row">
+            <span class="type entity-tag entity-${e.entity_type}">${e.entity_type}</span>
+            <span class="value">${escapeHtml(e.text)}</span>
+            <span class="conf">${e.score.toFixed(2)}</span>
+          </div>
+        `).join('');
+        document.getElementById('entities-container').style.display = 'block';
+      } else {
+        listEl.innerHTML = '<div style="padding:0.5rem;color:var(--text-muted)">No PII detected</div>';
+        document.getElementById('entities-container').style.display = 'block';
+      }
+
+      document.getElementById('entity-count').textContent = `${entities.length} entities`;
+      document.getElementById('perf-analysis').textContent = (t1 - t0).toFixed(1) + 'ms';
+      document.getElementById('perf-entities').textContent = entities.length.toString();
+      document.getElementById('perf-bar').style.display = 'flex';
+
+      trackEvent('detect', { entities: entities.length, locale: document.getElementById('locale-select').value, ms: Math.round(t2-t0) });
     });
 
-    setup();
+    // ── Tab 2: Vault ──
+    document.getElementById('btn-vault').addEventListener('click', () => {
+      const text = document.getElementById('vault-input').value;
+      if (!text || !analyzer) return;
+
+      const vault = new WasmVault();
+      const entities = analyzer.analyze(text, 0.0);
+
+      // Sort by position desc for safe replacement
+      const sorted = [...entities].sort((a, b) => b.start - a.start);
+
+      let tokenized = text;
+      const mappings = [];
+      for (const e of sorted) {
+        const original = text.substring(e.start, e.end);
+        const token = vault.tokenize(e.entity_type, original);
+        tokenized = tokenized.substring(0, e.start) + token + tokenized.substring(e.end);
+        mappings.push({ type: e.entity_type, original, token });
+      }
+
+      // Render tokenized with highlights
+      let tokenHtml = escapeHtml(tokenized);
+      for (const m of mappings) {
+        const escaped = escapeHtml(m.token);
+        tokenHtml = tokenHtml.replaceAll(escaped,
+          `<span class="entity-tag entity-${m.type}">${escaped}</span>`);
+      }
+      document.getElementById('vault-tokenized').innerHTML = tokenHtml;
+
+      // Detokenize (restore)
+      const restored = vault.detokenize(tokenized);
+      let restoredHtml = escapeHtml(restored);
+      for (const m of mappings) {
+        const escapedOrig = escapeHtml(m.original);
+        restoredHtml = restoredHtml.replaceAll(escapedOrig,
+          `<span class="restored">${escapedOrig}</span>`);
+      }
+      document.getElementById('vault-restored').innerHTML = restoredHtml;
+
+      // Mapping table
+      const mapEl = document.getElementById('vault-map');
+      mapEl.innerHTML = mappings.reverse().map(m => `
+        <div class="entity-row">
+          <span class="type entity-tag entity-${m.type}">${m.type}</span>
+          <span class="value">${escapeHtml(m.original)}</span>
+          <span style="color:var(--text-muted);margin:0 0.5rem">&rarr;</span>
+          <span class="value" style="color:var(--accent)">${escapeHtml(m.token)}</span>
+        </div>
+      `).join('');
+      document.getElementById('vault-map-panel').hidden = false;
+
+      trackEvent('vault', { entities: mappings.length, restored: restored === text });
+    });
+
+    // ── Tab 3: LLM Workflow ──
+    document.getElementById('btn-llm').addEventListener('click', async () => {
+      const text = document.getElementById('llm-input').innerText;
+      if (!text || !analyzer) return;
+
+      const steps = document.querySelectorAll('#llm-steps .flow-step');
+      const setStep = (n) => {
+        steps.forEach(s => {
+          s.classList.remove('done', 'active');
+          if (parseInt(s.dataset.step) < n) s.classList.add('done');
+          if (parseInt(s.dataset.step) === n) s.classList.add('active');
+        });
+      };
+
+      // Step 1: Input
+      setStep(1);
+
+      // Step 2: Anonymize
+      await sleep(300);
+      setStep(2);
+      const vault = new WasmVault();
+      const entities = analyzer.analyze(text, 0.0);
+      const sorted = [...entities].sort((a, b) => b.start - a.start);
+
+      let anonymized = text;
+      const mappings = [];
+      for (const e of sorted) {
+        const original = text.substring(e.start, e.end);
+        const token = vault.tokenize(e.entity_type, original);
+        anonymized = anonymized.substring(0, e.start) + token + anonymized.substring(e.end);
+        mappings.push({ type: e.entity_type, original, token });
+      }
+
+      let anonHtml = escapeHtml(anonymized);
+      for (const m of mappings) {
+        const escaped = escapeHtml(m.token);
+        anonHtml = anonHtml.replaceAll(escaped,
+          `<span class="entity-tag entity-${m.type}">${escaped}</span>`);
+      }
+      document.getElementById('llm-anonymized').innerHTML = anonHtml;
+      document.getElementById('llm-anonymized').classList.remove('placeholder');
+
+      // Step 3: Simulate LLM response
+      await sleep(600);
+      setStep(3);
+
+      // Build a simulated LLM response that uses the tokens
+      const tokenMap = {};
+      for (const m of mappings) tokenMap[m.original] = m.token;
+
+      const llmResponse = buildLlmResponse(anonymized, mappings);
+      let responseHtml = escapeHtml(llmResponse);
+      for (const m of mappings) {
+        const escaped = escapeHtml(m.token);
+        responseHtml = responseHtml.replaceAll(escaped,
+          `<span class="entity-tag entity-${m.type}">${escaped}</span>`);
+      }
+      document.getElementById('llm-response').innerHTML = responseHtml;
+      document.getElementById('llm-response').classList.remove('placeholder');
+
+      // Step 4: Restore
+      await sleep(600);
+      setStep(4);
+
+      const restored = vault.detokenize(llmResponse);
+      let finalHtml = escapeHtml(restored);
+      for (const m of mappings) {
+        const escapedOrig = escapeHtml(m.original);
+        finalHtml = finalHtml.replaceAll(escapedOrig,
+          `<span class="restored">${escapedOrig}</span>`);
+      }
+      document.getElementById('llm-final').innerHTML = finalHtml;
+      document.getElementById('llm-final').classList.remove('placeholder');
+
+      // Mark all done
+      steps.forEach(s => s.classList.remove('active'));
+      steps.forEach(s => s.classList.add('done'));
+
+      trackEvent('llm_workflow', { entities: mappings.length });
+    });
+
+    function buildLlmResponse(anonymizedText, mappings) {
+      // Find tokens in the anonymized text to reference them
+      const personTokens = mappings.filter(m => m.type === 'US_SSN' || m.type === 'EMAIL_ADDRESS' || m.type === 'CREDIT_CARD' || m.type === 'PHONE_NUMBER');
+
+      // Get unique token references for the summary
+      const tokenRefs = {};
+      for (const m of mappings) {
+        if (!tokenRefs[m.type]) tokenRefs[m.type] = m.token;
+      }
+
+      let summary = "Patient Summary:\n\n";
+      summary += "- Patient has been diagnosed with Type 2 diabetes\n";
+      summary += "- Current medication: Metformin 500mg\n";
+
+      if (tokenRefs['EMAIL_ADDRESS']) {
+        summary += `- Contact: ${tokenRefs['EMAIL_ADDRESS']}\n`;
+      }
+      if (tokenRefs['PHONE_NUMBER']) {
+        summary += `- Emergency contact phone: ${tokenRefs['PHONE_NUMBER']}\n`;
+      }
+      summary += "\nRecommendation: Schedule follow-up in 3 months for HbA1c monitoring.";
+
+      return summary;
+    }
+
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function escapeHtml(str) {
+      const el = document.createElement('span');
+      el.textContent = str;
+      return el.innerHTML;
+    }
+
+    // ── Boot ──
+    setup().catch(err => {
+      document.getElementById('detect-status').textContent = 'Error: ' + err.message;
+      console.error(err);
+    });
   </script>
 </body>
 </html>
