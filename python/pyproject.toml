@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pii-vault"
-version = "0.2.0"
-description = "Presidio-compatible PII detection, anonymization, and reversible tokenization"
+version = "0.2.1"
+description = "Presidio-compatible PII detection, anonymization, and reversible tokenization. Python SDK planned — use Rust or TypeScript SDK today."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"

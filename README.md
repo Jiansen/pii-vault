@@ -7,34 +7,29 @@
 [![PyPI](https://img.shields.io/pypi/v/pii-vault)](https://pypi.org/project/pii-vault/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE-MIT)
 
-Multi-language implementations sharing a common specification. Detect 40+ PII entity types, anonymize with multiple strategies (replace, mask, hash, redact), and reversibly tokenize with a persistent vault.
+Spec-driven PII detection with **47 recognizers** across 15+ countries, **9 checksum validators**, and **reversible vault tokenization** for LLM de-anonymization. Zero runtime dependencies beyond regex.
 
 ## Install
 
-```bash
-# Rust
-cargo add pii-vault
-
-# TypeScript / JavaScript
-npm install pii-vault
-
-# Python
-pip install pii-vault
-
-# Go
-go get github.com/Jiansen/pii-vault/go
-```
+| Language | Status | Install |
+|----------|--------|---------|
+| **Rust** | Full implementation (60 tests) | `cargo add pii-vault` |
+| **TypeScript** | Full implementation (62 tests) | `npm install pii-vault` |
+| **WASM** | Working (1.2MB bundle) | [Live demo](https://jiansen.github.io/pii-vault/) |
+| Python | Placeholder — PyO3 bindings planned | `pip install pii-vault` |
+| Go | Placeholder — planned | `go get github.com/Jiansen/pii-vault/go` |
 
 ## Features
 
-- **29 built-in recognizers** covering 15 countries (US, UK, CN, IN, AU, DE, IT, ES, KR, SG, FI, SE, PL, JP, FR, CA, BR)
+- **47 recognizers** covering 15+ countries (US, UK, CN, IN, AU, DE, IT, ES, KR, SG, FI, SE, PL, JP, FR, CA, BR)
+- **9 checksum validators**: Luhn, IBAN, Chinese ID, German Tax ID, AU ABN/TFN/ACN/Medicare, UK Driving Licence
 - **Presidio-aligned regex patterns** for core entity types (email, credit card, IP, crypto)
 - **Shared spec**: Recognizer patterns defined as JSON, consumed by all language implementations
 - **Vault**: Deterministic, reversible tokenization with collision handling and context disambiguation
-- **Multiple anonymization strategies**: Replace, Mask, Hash, Redact, Vault
-- **Luhn validation** for credit cards, **checksum validation** for Chinese ID cards
+- **5 anonymization strategies**: Replace, Mask, Hash, Redact, Vault
 - **Context-aware scoring**: Boost detection confidence when context words appear nearby
 - **Zero runtime dependencies** beyond regex and JSON parsing
+- **122 tests** across Rust and TypeScript
 
 ## Quick Start
 
@@ -42,7 +37,7 @@ go get github.com/Jiansen/pii-vault/go
 
 ```toml
 [dependencies]
-pii-vault = "0.1"
+pii-vault = "0.2"
 ```
 
 ```rust
@@ -110,14 +105,14 @@ const restored = vault.detokenize(anon.text);
 pii-vault/
 ├── spec/                     # Shared specification (language-agnostic)
 │   ├── entities.json         # 45 entity type definitions
-│   ├── recognizers/          # 29 regex recognizer definitions (JSON)
+│   ├── recognizers/          # 47 regex recognizer definitions (JSON)
 │   └── test-cases/           # Cross-language test cases
-├── rust/                     # Rust implementation → crates.io: pii-vault
-├── typescript/               # TypeScript implementation → npm: pii-vault
-├── go/                       # Go implementation (planned)
-├── java/                     # Java implementation (planned)
-├── haskell/                  # Haskell implementation (planned)
-└── wasm/                     # WASM from Rust (planned)
+├── rust/                     # Rust implementation → crates.io: pii-vault ✅
+├── typescript/               # TypeScript implementation → npm: pii-vault ✅
+├── wasm/                     # WASM from Rust → GitHub Pages demo ✅
+├── python/                   # Python placeholder (PyO3 planned)
+├── go/                       # Go placeholder (planned)
+└── java/                     # Java placeholder (planned)
 ```
 
 The `spec/recognizers/*.json` files are the **single source of truth**. All language implementations load these patterns at runtime or compile time.
