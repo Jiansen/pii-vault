@@ -105,6 +105,7 @@ export class RegexRecognizer implements Recognizer {
         case 'au_tfn': if (!auTfnCheck(matched)) return false; break;
         case 'au_acn': if (!auAcnCheck(matched)) return false; break;
         case 'au_medicare': if (!auMedicareCheck(matched)) return false; break;
+        case 'uk_driving_licence': if (!ukDrivingLicenceCheck(matched)) return false; break;
       }
     }
     return true;
@@ -210,4 +211,24 @@ export function auMedicareCheck(medicare: string): boolean {
   const weights = [1, 3, 7, 9, 1, 3, 7, 9];
   const sum = digits.slice(0, 8).reduce((acc, v, i) => acc + v * weights[i], 0);
   return sum % 10 === digits[8];
+}
+
+export function ukDrivingLicenceCheck(licence: string): boolean {
+  const text = licence.toUpperCase();
+  if (text.length !== 16) return false;
+  const surname = text.slice(0, 5);
+  // All 9s = no valid surname
+  if (surname === '99999') return false;
+  // Surname must be letters followed by optional 9-padding (no 9 before a letter)
+  let seenNine = false;
+  for (const c of surname) {
+    if (c === '9') {
+      seenNine = true;
+    } else if (seenNine) {
+      return false; // Letter after 9 = invalid padding
+    }
+  }
+  // Must start with at least one letter
+  if (surname[0] >= '0' && surname[0] <= '9') return false;
+  return true;
 }

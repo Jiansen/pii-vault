@@ -1,0 +1,16 @@
+{
+  "name": "uk_driving_licence_recognizer",
+  "entity_type": "UK_DRIVING_LICENCE",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "uk_driving_licence",
+      "regex": "\\b[A-Z9]{5}[0-9](?:0[1-9]|1[0-2]|5[1-9]|6[0-2])(?:0[1-9]|[12][0-9]|3[01])[0-9][A-Z9]{2}[A-Z0-9][A-Z]{2}\\b",
+      "score": 0.3
+    }
+  ],
+  "validators": ["uk_driving_licence"],
+  "context_words": ["driving licence", "driving license", "driver's licence", "driver's license", "dvla", "dl number", "licence number", "license number"],
+  "context_score_boost": 0.4,
+  "supported_languages": ["en"]
+}

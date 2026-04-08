@@ -1,6 +1,6 @@
 [package]
 name = "pii-vault"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Presidio-compatible PII detection, anonymization, and reversible tokenization"
 license = "MIT"

@@ -1,6 +1,6 @@
 [package]
 name = "pii-vault-wasm"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "PII Vault WASM bindings — Presidio-compatible PII detection in the browser"
 license = "MIT"

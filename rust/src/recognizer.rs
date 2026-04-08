@@ -79,6 +79,7 @@ impl RegexRecognizer {
                 "au_tfn" => { if !au_tfn_check(matched) { return false; } }
                 "au_acn" => { if !au_acn_check(matched) { return false; } }
                 "au_medicare" => { if !au_medicare_check(matched) { return false; } }
+                "uk_driving_licence" => { if !uk_driving_licence_check(matched) { return false; } }
                 _ => {}
             }
         }
@@ -256,6 +257,31 @@ fn au_medicare_check(medicare: &str) -> bool {
     let weights: [u32; 8] = [1, 3, 7, 9, 1, 3, 7, 9];
     let sum: u32 = digits[..8].iter().zip(weights.iter()).map(|(a, b)| a * b).sum();
     sum % 10 == digits[8]
+}
+
+fn uk_driving_licence_check(licence: &str) -> bool {
+    let text = licence.to_uppercase();
+    if text.len() != 16 {
+        return false;
+    }
+    let surname: &str = &text[..5];
+    // All 9s = no valid surname
+    if surname == "99999" {
+        return false;
+    }
+    // Surname must be letters followed by optional 9-padding (no 9 before a letter)
+    let chars: Vec<char> = surname.chars().collect();
+    let mut seen_nine = false;
+    for &c in &chars {
+        if c == '9' {
+            seen_nine = true;
+        } else if seen_nine {
+            // Letter after 9 = invalid padding
+            return false;
+        }
+    }
+    // Must start with at least one letter
+    !chars[0].is_ascii_digit()
 }
 
 pub fn load_recognizers_from_dir(dir: &std::path::Path) -> Vec<Box<dyn Recognizer>> {

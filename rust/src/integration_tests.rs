@@ -326,6 +326,65 @@ mod tests {
     }
 
     #[test]
+    fn test_uk_driving_licence_detection() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        // Male licence: MORGA = Morgan surname, 6=decade, 07=July, 05=5th, 4=year digit
+        let result = analyzer.analyze("Driving licence: MORGA607054SM9IJ", &[], 0.0);
+        let lics: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "UK_DRIVING_LICENCE")
+            .collect();
+        assert!(!lics.is_empty(), "Should detect UK driving licence");
+    }
+
+    #[test]
+    fn test_uk_driving_licence_female() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        // Female licence: month + 50 = 57 for July
+        let result = analyzer.analyze("MORGA657054SM9IJ", &[], 0.0);
+        let lics: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "UK_DRIVING_LICENCE")
+            .collect();
+        assert!(!lics.is_empty(), "Should detect female UK driving licence");
+    }
+
+    #[test]
+    fn test_uk_driving_licence_padded_surname() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        // Short surname "FO" padded with 9s: FO999
+        let result = analyzer.analyze("FO999512018AA1AB", &[], 0.0);
+        let lics: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "UK_DRIVING_LICENCE")
+            .collect();
+        assert!(!lics.is_empty(), "Should detect padded surname driving licence");
+    }
+
+    #[test]
+    fn test_uk_driving_licence_invalid_all_nines_surname() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        let result = analyzer.analyze("99999657054SM9IJ", &[], 0.0);
+        let lics: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "UK_DRIVING_LICENCE")
+            .collect();
+        assert!(lics.is_empty(), "Should NOT detect all-9s surname");
+    }
+
+    #[test]
+    fn test_uk_driving_licence_invalid_padding() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        // 9 before letter in surname = invalid
+        let result = analyzer.analyze("MO9G9657054SM9IJ", &[], 0.0);
+        let lics: Vec<_> = result.entities.iter()
+            .filter(|e| e.entity_type.as_str() == "UK_DRIVING_LICENCE")
+            .collect();
+        assert!(lics.is_empty(), "Should NOT detect invalid surname padding");
+    }
+
+    #[test]
     fn test_empty_text() {
         let recs = load_spec_recognizers();
         let analyzer = Analyzer::new(recs);
