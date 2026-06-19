@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::path::Path;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -142,6 +143,24 @@ impl Vault {
 
     pub fn entry_count(&self) -> usize {
         self.entries.len()
+    }
+
+    /// Save the vault to a JSON file. Tokens are preserved across sessions,
+    /// enabling depseudonymization even after restarts.
+    pub fn save_to_file<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
+        let json = self.to_json().map_err(|e| {
+            std::io::Error::new(std::io::ErrorKind::Other, e.to_string())
+        })?;
+        std::fs::write(path.as_ref(), json)
+    }
+
+    /// Load a vault from a JSON file previously saved with [`save_to_file`].
+    /// Returns an I/O error if the file cannot be read or parsed.
+    pub fn load_from_file<P: AsRef<Path>>(path: P) -> std::io::Result<Self> {
+        let json = std::fs::read_to_string(path.as_ref())?;
+        Self::from_json(&json).map_err(|e| {
+            std::io::Error::new(std::io::ErrorKind::InvalidData, e.to_string())
+        })
     }
 
     fn stable_token(category: &str, input: &str) -> String {
@@ -302,4 +321,57 @@ mod tests {
         assert!(data["salt"].is_string());
         assert_eq!(data["salt"].as_str().unwrap().len(), 32);
     }
+
+    #[test]
+    fn test_save_and_load_file() {
+        let dir = std::env::temp_dir();
+        let path = dir.join("pii_vault_test_save.json");
+        let _ = std::fs::remove_file(&path);
+
+        let mut vault = Vault::new();
+        let tok1 = vault.tokenize("email_address", "alice@example.com");
+        let tok2 = vault.tokenize("phone_number", "555-1234");
+        vault.save_to_file(&path).unwrap();
+
+        let mut loaded = Vault::load_from_file(&path).unwrap();
+        assert_eq!(loaded.entry_count(), 2);
+        assert_eq!(loaded.detokenize(&tok1), "alice@example.com");
+        assert_eq!(loaded.detokenize(&tok2), "555-1234");
+
+        // Same salt: tokens reproduce deterministically
+        let tok3 = loaded.tokenize("email_address", "alice@example.com");
+        assert_eq!(tok1, tok3, "loaded vault should produce same tokens");
+
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn test_load_from_nonexistent_file() {
+        let dir = std::env::temp_dir();
+        let path = dir.join("pii_vault_test_nonexistent.json");
+        let _ = std::fs::remove_file(&path);
+        let result = Vault::load_from_file(&path);
+        assert!(result.is_err(), "loading nonexistent file should fail");
+    }
+
+    #[test]
+    fn test_save_and_load_preserves_detokenization_across_sessions() {
+        let dir = std::env::temp_dir();
+        let path = dir.join("pii_vault_test_session.json");
+        let _ = std::fs::remove_file(&path);
+
+        // Session 1: tokenize and persist
+        let mut vault = Vault::new();
+        let token_email = vault.tokenize("email_address", "alice@example.com");
+        let token_phone = vault.tokenize("phone_number", "555-1234");
+        let tok_text = format!("Contact {} or call {}", token_email, token_phone);
+        vault.save_to_file(&path).unwrap();
+
+        // Session 2: load and detokenize (simulating reboot)
+        let loaded = Vault::load_from_file(&path).unwrap();
+        let restored = loaded.detokenize(&tok_text);
+        assert_eq!(restored, "Contact alice@example.com or call 555-1234");
+
+    }
+
 }
