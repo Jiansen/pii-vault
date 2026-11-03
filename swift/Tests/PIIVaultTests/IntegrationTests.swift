@@ -100,6 +100,14 @@ import Testing
         entities(specAnalyzer.analyze(text, scoreThreshold: 0.5), ofType: type).compactMap { $0.text(in: text) }
     }
 
+    @Test func koreanRRNForeignResidentAndDates() {
+        // 5-8 in the 7th digit: foreign residents (외국인등록번호), same format
+        #expect(found("외국인등록번호: 900101-5123456", "KR_RRN") == ["900101-5123456"])
+        // Month 13 and day 32 are not dates of birth
+        #expect(found("ref 851301-1234567", "KR_RRN") == [])
+        #expect(found("ref 850132-1234567", "KR_RRN") == [])
+    }
+
     @Test func brazilianCNPJ() {
         #expect(found("Empresa 11.222.333/0001-81 Ltda", "BR_CNPJ") == ["11.222.333/0001-81"])
         #expect(found("CNPJ 12.ABC.345/01DE-35", "BR_CNPJ") == ["12.ABC.345/01DE-35"])

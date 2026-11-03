@@ -246,6 +246,16 @@ mod tests {
     }
 
     #[test]
+    fn test_kr_rrn_foreigner_and_date() {
+        let analyzer = Analyzer::new(load_spec_recognizers());
+        // 5-8 in the 7th digit: foreign residents (외국인등록번호), same format
+        assert_eq!(found(&analyzer, "외국인등록번호: 900101-5123456", "KR_RRN"), vec!["900101-5123456"]);
+        // Month 13 and day 32 are not dates of birth
+        assert!(found(&analyzer, "ref 851301-1234567", "KR_RRN").is_empty());
+        assert!(found(&analyzer, "ref 850132-1234567", "KR_RRN").is_empty());
+    }
+
+    #[test]
     fn test_br_cnpj_detection() {
         let analyzer = Analyzer::new(load_spec_recognizers());
         assert_eq!(found(&analyzer, "Empresa 11.222.333/0001-81 Ltda", "BR_CNPJ"), vec!["11.222.333/0001-81"]);

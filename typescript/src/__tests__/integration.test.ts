@@ -143,6 +143,14 @@ describe('Integration: Spec-loaded recognizers', () => {
     .filter(e => e.entityType.name === type)
     .map(e => text.slice(e.start, e.end));
 
+  test('detects a foreign resident RRN and rejects impossible dates', () => {
+    // 5-8 in the 7th digit: foreign residents (외국인등록번호), same format
+    expect(found('외국인등록번호: 900101-5123456', 'KR_RRN')).toEqual(['900101-5123456']);
+    // Month 13 and day 32 are not dates of birth
+    expect(found('ref 851301-1234567', 'KR_RRN')).toEqual([]);
+    expect(found('ref 850132-1234567', 'KR_RRN')).toEqual([]);
+  });
+
   test('detects Brazilian CNPJ', () => {
     expect(found('Empresa 11.222.333/0001-81 Ltda', 'BR_CNPJ')).toEqual(['11.222.333/0001-81']);
     expect(found('CNPJ 12.ABC.345/01DE-35', 'BR_CNPJ')).toEqual(['12.ABC.345/01DE-35']);
