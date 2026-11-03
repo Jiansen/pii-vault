@@ -11,6 +11,11 @@ enum Validator: String, Sendable {
     case ukDrivingLicence = "uk_driving_licence"
     case brCNPJ = "br_cnpj"
     case nlBSN = "nl_bsn"
+    case cpf = "cpf_checksum"
+    case pesel = "pesel_checksum"
+    case verhoeff
+    case nhs = "nhs_checksum"
+    case aba = "aba_checksum"
 
     func validate(_ matched: String) -> Bool {
         switch self {
@@ -25,6 +30,11 @@ enum Validator: String, Sendable {
         case .ukDrivingLicence: Checksum.ukDrivingLicence(matched)
         case .brCNPJ: Checksum.brCNPJ(matched)
         case .nlBSN: Checksum.nlBSN(matched)
+        case .cpf: Checksum.cpf(matched)
+        case .pesel: Checksum.pesel(matched)
+        case .verhoeff: Checksum.verhoeff(matched)
+        case .nhs: Checksum.nhs(matched)
+        case .aba: Checksum.aba(matched)
         }
     }
 }
@@ -216,5 +226,81 @@ public enum Checksum {
         }
         let sum = d[..<8].enumerated().reduce(0) { $0 + $1.element * (9 - $1.offset) } - d[8]
         return sum > 0 && sum % 11 == 0
+    }
+
+    /// CPF: two mod-11 check digits over weights 10...2 and 11...2. Repeated-digit numbers
+    /// (111.111.111-11 and so on) pass the arithmetic but are not issued.
+    public static func cpf(_ cpf: String) -> Bool {
+        let d = asciiDigits(cpf)
+        if d.count != 11 || d.allSatisfy({ $0 == d[0] }) {
+            return false
+        }
+        return [9, 10].allSatisfy { n in
+            let sum = d[..<n].enumerated().reduce(0) { $0 + $1.element * (n + 1 - $1.offset) }
+            return (sum * 10 % 11) % 10 == d[n]
+        }
+    }
+
+    /// PESEL: weights 1, 3, 7, 9 repeating over the first 10 digits; the 11th makes the sum a
+    /// multiple of 10.
+    public static func pesel(_ pesel: String) -> Bool {
+        let d = asciiDigits(pesel)
+        if d.count != 11 {
+            return false
+        }
+        let weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3]
+        let sum = zip(d[..<10], weights).reduce(0) { $0 + $1.0 * $1.1 }
+        return (10 - sum % 10) % 10 == d[10]
+    }
+
+    private static let verhoeffD: [[Int]] = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+        [2, 3, 4, 0, 1, 7, 8, 9, 5, 6], [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+        [4, 0, 1, 2, 3, 9, 5, 6, 7, 8], [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+        [6, 5, 9, 8, 7, 1, 0, 4, 3, 2], [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+        [8, 7, 6, 5, 9, 3, 2, 1, 0, 4], [9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+    ]
+    private static let verhoeffP: [[Int]] = [
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
+        [5, 8, 0, 3, 7, 9, 6, 1, 4, 2], [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
+        [9, 4, 5, 3, 1, 2, 6, 8, 7, 0], [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+        [2, 7, 9, 3, 8, 0, 6, 4, 1, 5], [7, 0, 4, 6, 9, 1, 3, 2, 5, 8],
+    ]
+
+    /// Verhoeff (dihedral group D5), as used by Aadhaar: the number including its check digit
+    /// must reduce to 0.
+    public static func verhoeff(_ number: String) -> Bool {
+        let d = asciiDigits(number)
+        if d.isEmpty {
+            return false
+        }
+        var c = 0
+        for (i, x) in d.reversed().enumerated() {
+            c = verhoeffD[c][verhoeffP[i % 8][x]]
+        }
+        return c == 0
+    }
+
+    /// NHS: weights 10...2 over the first 9 digits; the check digit is 11 minus the sum mod 11,
+    /// with 11 meaning 0. A result of 10 means the number is never issued.
+    public static func nhs(_ nhs: String) -> Bool {
+        let d = asciiDigits(nhs)
+        if d.count != 10 {
+            return false
+        }
+        let sum = d[..<9].enumerated().reduce(0) { $0 + $1.element * (10 - $1.offset) }
+        let check = (11 - sum % 11) % 11
+        return check != 10 && check == d[9]
+    }
+
+    /// ABA routing number: weights 3, 7, 1 repeating; the sum is a multiple of 10. 000000000
+    /// passes the arithmetic and is rejected.
+    public static func aba(_ routing: String) -> Bool {
+        let d = asciiDigits(routing)
+        if d.count != 9 || d.allSatisfy({ $0 == 0 }) {
+            return false
+        }
+        let weights = [3, 7, 1, 3, 7, 1, 3, 7, 1]
+        return zip(d, weights).reduce(0) { $0 + $1.0 * $1.1 } % 10 == 0
     }
 }

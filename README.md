@@ -7,7 +7,7 @@
 [![PyPI](https://img.shields.io/pypi/v/pii-vault)](https://pypi.org/project/pii-vault/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE-MIT)
 
-Spec-driven PII and secret detection with **74 recognizers** (50 PII across 15+ countries, 24 API-key/token types), **11 checksum validators**, and **reversible vault tokenization** for LLM de-anonymization. Zero runtime dependencies beyond regex.
+Spec-driven PII and secret detection with **74 recognizers** (50 PII across 15+ countries, 24 API-key/token types), **16 checksum validators**, and **reversible vault tokenization** for LLM de-anonymization. Zero runtime dependencies beyond regex.
 
 ## Install
 
@@ -24,7 +24,7 @@ Spec-driven PII and secret detection with **74 recognizers** (50 PII across 15+ 
 
 - **50 PII recognizers** covering 15+ countries (US, UK, CN, IN, AU, DE, IT, ES, KR, SG, FI, SE, PL, JP, FR, CA, BR, NL)
 - **24 secret recognizers** for API keys and tokens (AWS, GitHub, GitLab, Slack, Stripe, OpenAI, private keys, JWT, …), ported from [detect-secrets](https://github.com/Yelp/detect-secrets) (Apache-2.0); each rule's `note` documents its source and any deviation
-- **11 checksum validators**: Luhn, IBAN, Chinese ID, German Tax ID, AU ABN/TFN/ACN/Medicare, UK Driving Licence, Brazilian CNPJ, Dutch BSN
+- **16 checksum validators**: Luhn, IBAN, Chinese ID, German Tax ID, AU ABN/TFN/ACN/Medicare, UK Driving Licence, UK NHS, US ABA routing, Brazilian CPF/CNPJ, Polish PESEL, Dutch BSN, Verhoeff (Aadhaar)
 - **Presidio-aligned regex patterns** for core entity types (email, credit card, IP, crypto)
 - **Shared spec**: Recognizer patterns defined as JSON, consumed by all language implementations
 - **Vault**: Deterministic, reversible tokenization with collision handling and context disambiguation

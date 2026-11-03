@@ -255,6 +255,25 @@ mod tests {
         assert!(found(&analyzer, "ref 850132-1234567", "KR_RRN").is_empty());
     }
 
+    /// Same cases in the TypeScript and Swift tests.
+    #[test]
+    fn test_checksum_validators_on_spec_rules() {
+        let analyzer = Analyzer::new(load_spec_recognizers());
+        let detected = |text: &str, entity: &str| analyzer.analyze(text, &[], 0.0).entities.iter()
+            .any(|e| e.entity_type.as_str() == entity);
+        assert!(detected("CPF: 529.982.247-25", "BR_CPF"), "CPF: 529.982.247-25");
+        assert!(detected("PESEL: 02070803628", "PL_PESEL"), "PESEL: 02070803628");
+        assert!(detected("Aadhaar: 4991 1866 5246", "IN_AADHAAR"), "Aadhaar: 4991 1866 5246");
+        assert!(detected("NHS number: 401 023 2137", "UK_NHS"), "NHS number: 401 023 2137");
+        assert!(detected("Routing: 011000015", "US_BANK_ROUTING"), "Routing: 011000015");
+        // Same numbers with a wrong check digit
+        assert!(!detected("CPF: 123.456.789-08", "BR_CPF"), "CPF: 123.456.789-08");
+        assert!(!detected("PESEL: 44051401459", "PL_PESEL"), "PESEL: 44051401459");
+        assert!(!detected("Aadhaar: 2234 5678 9012", "IN_AADHAAR"), "Aadhaar: 2234 5678 9012");
+        assert!(!detected("NHS number: 943 476 5918", "UK_NHS"), "NHS number: 943 476 5918");
+        assert!(!detected("Routing: 021000022", "US_BANK_ROUTING"), "Routing: 021000022");
+    }
+
     #[test]
     fn test_br_cnpj_detection() {
         let analyzer = Analyzer::new(load_spec_recognizers());

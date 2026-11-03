@@ -159,6 +159,11 @@ export class RegexRecognizer implements Recognizer {
         case 'uk_driving_licence': if (!ukDrivingLicenceCheck(matched)) return false; break;
         case 'br_cnpj': if (!brCnpjCheck(matched)) return false; break;
         case 'nl_bsn': if (!nlBsnCheck(matched)) return false; break;
+        case 'cpf_checksum': if (!cpfCheck(matched)) return false; break;
+        case 'pesel_checksum': if (!peselCheck(matched)) return false; break;
+        case 'verhoeff': if (!verhoeffCheck(matched)) return false; break;
+        case 'nhs_checksum': if (!nhsCheck(matched)) return false; break;
+        case 'aba_checksum': if (!abaCheck(matched)) return false; break;
       }
     }
     return true;
@@ -312,4 +317,73 @@ export function nlBsnCheck(bsn: string): boolean {
   let sum = -d[8];
   for (let i = 0; i < 8; i++) sum += d[i] * (9 - i);
   return sum > 0 && sum % 11 === 0;
+}
+
+const asciiDigits = (s: string): number[] => s.replace(/[^0-9]/g, '').split('').map(Number);
+
+/**
+ * CPF: two mod-11 check digits over weights 10..2 and 11..2. Repeated-digit numbers
+ * (111.111.111-11 and so on) pass the arithmetic but are not issued.
+ */
+export function cpfCheck(cpf: string): boolean {
+  const d = asciiDigits(cpf);
+  if (d.length !== 11 || d.every(x => x === d[0])) return false;
+  return [9, 10].every(n => {
+    let sum = 0;
+    for (let i = 0; i < n; i++) sum += d[i] * (n + 1 - i);
+    return ((sum * 10) % 11) % 10 === d[n];
+  });
+}
+
+/** PESEL: weights 1, 3, 7, 9 repeating over the first 10 digits; the 11th makes the sum a multiple of 10. */
+export function peselCheck(pesel: string): boolean {
+  const d = asciiDigits(pesel);
+  if (d.length !== 11) return false;
+  const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
+  const sum = weights.reduce((acc, w, i) => acc + w * d[i], 0);
+  return (10 - (sum % 10)) % 10 === d[10];
+}
+
+const VERHOEFF_D = [
+  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+  [2, 3, 4, 0, 1, 7, 8, 9, 5, 6], [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+  [4, 0, 1, 2, 3, 9, 5, 6, 7, 8], [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+  [6, 5, 9, 8, 7, 1, 0, 4, 3, 2], [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+  [8, 7, 6, 5, 9, 3, 2, 1, 0, 4], [9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+];
+const VERHOEFF_P = [
+  [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
+  [5, 8, 0, 3, 7, 9, 6, 1, 4, 2], [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
+  [9, 4, 5, 3, 1, 2, 6, 8, 7, 0], [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+  [2, 7, 9, 3, 8, 0, 6, 4, 1, 5], [7, 0, 4, 6, 9, 1, 3, 2, 5, 8],
+];
+
+/** Verhoeff (dihedral group D5), as used by Aadhaar: the number including its check digit must reduce to 0. */
+export function verhoeffCheck(number: string): boolean {
+  const d = asciiDigits(number);
+  if (d.length === 0) return false;
+  let c = 0;
+  d.reverse().forEach((x, i) => { c = VERHOEFF_D[c][VERHOEFF_P[i % 8][x]]; });
+  return c === 0;
+}
+
+/**
+ * NHS: weights 10..2 over the first 9 digits; the check digit is 11 minus the sum mod 11,
+ * with 11 meaning 0. A result of 10 means the number is never issued.
+ */
+export function nhsCheck(nhs: string): boolean {
+  const d = asciiDigits(nhs);
+  if (d.length !== 10) return false;
+  let sum = 0;
+  for (let i = 0; i < 9; i++) sum += d[i] * (10 - i);
+  const check = (11 - (sum % 11)) % 11;
+  return check !== 10 && check === d[9];
+}
+
+/** ABA routing number: weights 3, 7, 1 repeating; the sum is a multiple of 10. 000000000 passes the arithmetic and is rejected. */
+export function abaCheck(routing: string): boolean {
+  const d = asciiDigits(routing);
+  if (d.length !== 9 || d.every(x => x === 0)) return false;
+  const weights = [3, 7, 1, 3, 7, 1, 3, 7, 1];
+  return weights.reduce((acc, w, i) => acc + w * d[i], 0) % 10 === 0;
 }

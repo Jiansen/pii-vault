@@ -151,6 +151,23 @@ describe('Integration: Spec-loaded recognizers', () => {
     expect(found('ref 850132-1234567', 'KR_RRN')).toEqual([]);
   });
 
+  // Same cases in the Rust and Swift tests.
+  test('checksum validators on spec rules', () => {
+    const detected = (text: string, type: string) =>
+      analyzer.analyze(text, [], 0.0).entities.some(e => e.entityType.name === type);
+    expect(detected('CPF: 529.982.247-25', 'BR_CPF')).toBe(true);
+    expect(detected('PESEL: 02070803628', 'PL_PESEL')).toBe(true);
+    expect(detected('Aadhaar: 4991 1866 5246', 'IN_AADHAAR')).toBe(true);
+    expect(detected('NHS number: 401 023 2137', 'UK_NHS')).toBe(true);
+    expect(detected('Routing: 011000015', 'US_BANK_ROUTING')).toBe(true);
+    // Same numbers with a wrong check digit
+    expect(detected('CPF: 123.456.789-08', 'BR_CPF')).toBe(false);
+    expect(detected('PESEL: 44051401459', 'PL_PESEL')).toBe(false);
+    expect(detected('Aadhaar: 2234 5678 9012', 'IN_AADHAAR')).toBe(false);
+    expect(detected('NHS number: 943 476 5918', 'UK_NHS')).toBe(false);
+    expect(detected('Routing: 021000022', 'US_BANK_ROUTING')).toBe(false);
+  });
+
   test('detects Brazilian CNPJ', () => {
     expect(found('Empresa 11.222.333/0001-81 Ltda', 'BR_CNPJ')).toEqual(['11.222.333/0001-81']);
     expect(found('CNPJ 12.ABC.345/01DE-35', 'BR_CNPJ')).toEqual(['12.ABC.345/01DE-35']);

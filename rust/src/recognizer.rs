@@ -124,6 +124,11 @@ impl RegexRecognizer {
                 "uk_driving_licence" => { if !uk_driving_licence_check(matched) { return false; } }
                 "br_cnpj" => { if !br_cnpj_check(matched) { return false; } }
                 "nl_bsn" => { if !nl_bsn_check(matched) { return false; } }
+                "cpf_checksum" => { if !cpf_check(matched) { return false; } }
+                "pesel_checksum" => { if !pesel_check(matched) { return false; } }
+                "verhoeff" => { if !verhoeff_check(matched) { return false; } }
+                "nhs_checksum" => { if !nhs_check(matched) { return false; } }
+                "aba_checksum" => { if !aba_check(matched) { return false; } }
                 _ => {}
             }
         }
@@ -358,6 +363,86 @@ fn nl_bsn_check(bsn: &str) -> bool {
     sum > 0 && sum % 11 == 0
 }
 
+fn ascii_digits(s: &str) -> Vec<u32> {
+    s.chars().filter_map(|c| if c.is_ascii_digit() { c.to_digit(10) } else { None }).collect()
+}
+
+/// CPF: two mod-11 check digits over weights 10..=2 and 11..=2. Repeated-digit numbers
+/// (111.111.111-11 and so on) pass the arithmetic but are not issued.
+fn cpf_check(cpf: &str) -> bool {
+    let d = ascii_digits(cpf);
+    if d.len() != 11 || d.iter().all(|&x| x == d[0]) {
+        return false;
+    }
+    [9, 10].iter().all(|&n| {
+        let sum: u32 = d[..n].iter().enumerate().map(|(i, x)| x * (n as u32 + 1 - i as u32)).sum();
+        (sum * 10 % 11) % 10 == d[n]
+    })
+}
+
+/// PESEL: weights 1, 3, 7, 9 repeating over the first 10 digits; the 11th makes the sum a
+/// multiple of 10.
+fn pesel_check(pesel: &str) -> bool {
+    let d = ascii_digits(pesel);
+    if d.len() != 11 {
+        return false;
+    }
+    let weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
+    let sum: u32 = d[..10].iter().zip(weights.iter()).map(|(a, b)| a * b).sum();
+    (10 - sum % 10) % 10 == d[10]
+}
+
+const VERHOEFF_D: [[u8; 10]; 10] = [
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+    [2, 3, 4, 0, 1, 7, 8, 9, 5, 6], [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+    [4, 0, 1, 2, 3, 9, 5, 6, 7, 8], [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+    [6, 5, 9, 8, 7, 1, 0, 4, 3, 2], [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+    [8, 7, 6, 5, 9, 3, 2, 1, 0, 4], [9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+];
+const VERHOEFF_P: [[u8; 10]; 8] = [
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
+    [5, 8, 0, 3, 7, 9, 6, 1, 4, 2], [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
+    [9, 4, 5, 3, 1, 2, 6, 8, 7, 0], [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+    [2, 7, 9, 3, 8, 0, 6, 4, 1, 5], [7, 0, 4, 6, 9, 1, 3, 2, 5, 8],
+];
+
+/// Verhoeff (dihedral group D5), as used by Aadhaar: the number including its check digit
+/// must reduce to 0.
+fn verhoeff_check(number: &str) -> bool {
+    let d = ascii_digits(number);
+    if d.is_empty() {
+        return false;
+    }
+    let mut c = 0usize;
+    for (i, &x) in d.iter().rev().enumerate() {
+        c = VERHOEFF_D[c][VERHOEFF_P[i % 8][x as usize] as usize] as usize;
+    }
+    c == 0
+}
+
+/// NHS: weights 10..=2 over the first 9 digits; the check digit is 11 minus the sum mod 11,
+/// with 11 meaning 0. A result of 10 means the number is never issued.
+fn nhs_check(nhs: &str) -> bool {
+    let d = ascii_digits(nhs);
+    if d.len() != 10 {
+        return false;
+    }
+    let sum: u32 = d[..9].iter().enumerate().map(|(i, x)| x * (10 - i as u32)).sum();
+    let check = (11 - sum % 11) % 11;
+    check != 10 && check == d[9]
+}
+
+/// ABA routing number: weights 3, 7, 1 repeating; the sum is a multiple of 10. 000000000
+/// passes the arithmetic and is rejected.
+fn aba_check(routing: &str) -> bool {
+    let d = ascii_digits(routing);
+    if d.len() != 9 || d.iter().all(|&x| x == 0) {
+        return false;
+    }
+    let weights = [3, 7, 1, 3, 7, 1, 3, 7, 1];
+    d.iter().zip(weights.iter()).map(|(a, b)| a * b).sum::<u32>() % 10 == 0
+}
+
 pub fn load_recognizers_from_dir(dir: &std::path::Path) -> Vec<Box<dyn Recognizer>> {
     let mut recognizers: Vec<Box<dyn Recognizer>> = Vec::new();
     if let Ok(entries) = std::fs::read_dir(dir) {
@@ -456,6 +541,57 @@ mod tests {
         assert!(!br_cnpj_check("00.000.000/0000-00"));
         assert!(!br_cnpj_check("1122233300018"));
         assert!(!br_cnpj_check("12.ABC.345/01DE-3A"));
+    }
+
+    /// Shared with the TypeScript and Swift tests.
+    #[test]
+    fn test_cpf() {
+        assert!(cpf_check("123.456.789-09"));
+        assert!(cpf_check("52998224725"));
+        assert!(!cpf_check("123.456.789-08"));
+        assert!(!cpf_check("123.456.789-19"));
+        assert!(!cpf_check("111.111.111-11"));
+        assert!(!cpf_check("1234567890"));
+    }
+
+    /// Shared with the TypeScript and Swift tests.
+    #[test]
+    fn test_pesel() {
+        assert!(pesel_check("44051401458"));
+        assert!(pesel_check("02070803628"));
+        assert!(!pesel_check("44051401459"));
+        assert!(!pesel_check("4405140145"));
+    }
+
+    /// Shared with the TypeScript and Swift tests.
+    #[test]
+    fn test_verhoeff() {
+        assert!(verhoeff_check("2363"));
+        assert!(!verhoeff_check("2364"));
+        assert!(verhoeff_check("4991 1866 5246"));
+        assert!(verhoeff_check("2234 5678 9018"));
+        assert!(!verhoeff_check("2234 5678 9012"));
+        assert!(!verhoeff_check(""));
+    }
+
+    /// Shared with the TypeScript and Swift tests.
+    #[test]
+    fn test_nhs() {
+        assert!(nhs_check("943 476 5919"));
+        assert!(nhs_check("4010232137"));
+        assert!(!nhs_check("943 476 5918"));
+        assert!(!nhs_check("401 023 2138"));
+        assert!(!nhs_check("123456789"));
+    }
+
+    /// Shared with the TypeScript and Swift tests.
+    #[test]
+    fn test_aba() {
+        assert!(aba_check("021000021"));
+        assert!(aba_check("011000015"));
+        assert!(!aba_check("021000022"));
+        assert!(!aba_check("000000000"));
+        assert!(!aba_check("02100002"));
     }
 
     /// Shared with the TypeScript and Swift tests.

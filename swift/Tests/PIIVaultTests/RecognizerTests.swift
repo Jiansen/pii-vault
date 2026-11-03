@@ -178,9 +178,9 @@ import Testing
         let rec = makeRecognizer(#"""
         {"name": "r", "entity_type": "BR_CPF", "version": "1.0.0",
          "patterns": [{"name": "cpf", "regex": "\\b\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}\\b", "score": 0.5}],
-         "validators": ["cpf_checksum"]}
+         "validators": ["no_such_validator"]}
         """#)
-        #expect(rec.analyze("CPF: 123.456.789-09", entities: []).count == 1)
+        #expect(rec.analyze("CPF: 123.456.789-08", entities: []).count == 1)
     }
 
     @Test func invalidRegexThrows() {
@@ -230,6 +230,52 @@ import Testing
         #expect(!Checksum.brCNPJ("00.000.000/0000-00"))
         #expect(!Checksum.brCNPJ("1122233300018"))
         #expect(!Checksum.brCNPJ("12.ABC.345/01DE-3A"))
+    }
+
+    /// Shared with the Rust and TypeScript tests.
+    @Test func brazilianCPF() {
+        #expect(Checksum.cpf("123.456.789-09"))
+        #expect(Checksum.cpf("52998224725"))
+        #expect(!Checksum.cpf("123.456.789-08"))
+        #expect(!Checksum.cpf("123.456.789-19"))
+        #expect(!Checksum.cpf("111.111.111-11"))
+        #expect(!Checksum.cpf("1234567890"))
+    }
+
+    /// Shared with the Rust and TypeScript tests.
+    @Test func polishPESEL() {
+        #expect(Checksum.pesel("44051401458"))
+        #expect(Checksum.pesel("02070803628"))
+        #expect(!Checksum.pesel("44051401459"))
+        #expect(!Checksum.pesel("4405140145"))
+    }
+
+    /// Shared with the Rust and TypeScript tests.
+    @Test func verhoeff() {
+        #expect(Checksum.verhoeff("2363"))
+        #expect(!Checksum.verhoeff("2364"))
+        #expect(Checksum.verhoeff("4991 1866 5246"))
+        #expect(Checksum.verhoeff("2234 5678 9018"))
+        #expect(!Checksum.verhoeff("2234 5678 9012"))
+        #expect(!Checksum.verhoeff(""))
+    }
+
+    /// Shared with the Rust and TypeScript tests.
+    @Test func ukNHS() {
+        #expect(Checksum.nhs("943 476 5919"))
+        #expect(Checksum.nhs("4010232137"))
+        #expect(!Checksum.nhs("943 476 5918"))
+        #expect(!Checksum.nhs("401 023 2138"))
+        #expect(!Checksum.nhs("123456789"))
+    }
+
+    /// Shared with the Rust and TypeScript tests.
+    @Test func abaRouting() {
+        #expect(Checksum.aba("021000021"))
+        #expect(Checksum.aba("011000015"))
+        #expect(!Checksum.aba("021000022"))
+        #expect(!Checksum.aba("000000000"))
+        #expect(!Checksum.aba("02100002"))
     }
 
     /// Shared with the Rust and TypeScript tests.

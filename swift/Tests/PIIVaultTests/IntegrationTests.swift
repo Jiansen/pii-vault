@@ -34,6 +34,11 @@ import Testing
         Case("PAN: ABCDE1234F", "IN_PAN"),
         Case("CF: RSSMRA85M01H501Z", "IT_FISCAL_CODE"),
         Case("CPF: 123.456.789-09", "BR_CPF"),
+        Case("CPF: 529.982.247-25", "BR_CPF"),
+        Case("PESEL: 02070803628", "PL_PESEL"),
+        Case("Aadhaar: 4991 1866 5246", "IN_AADHAAR"),
+        Case("NHS number: 401 023 2137", "UK_NHS"),
+        Case("Routing: 011000015", "US_BANK_ROUTING"),
         Case("NIE: X1234567A", "ES_NIE"),
         Case("NRIC: S1234567A", "SG_NRIC"),
         Case("주민등록번호: 850101-1234567", "KR_RRN"),
@@ -61,6 +66,11 @@ import Testing
         Case("IBAN: DE00370400440532013000", "IBAN_CODE"),      // invalid checksum
         Case("99999657054SM9IJ", "UK_DRIVING_LICENCE"),         // all-9s surname
         Case("MO9G9657054SM9IJ", "UK_DRIVING_LICENCE"),         // 9 before a letter in surname
+        Case("CPF: 123.456.789-08", "BR_CPF"),                   // wrong check digit
+        Case("PESEL: 44051401459", "PL_PESEL"),                  // wrong check digit
+        Case("Aadhaar: 2234 5678 9012", "IN_AADHAAR"),           // wrong check digit
+        Case("NHS number: 943 476 5918", "UK_NHS"),              // wrong check digit
+        Case("Routing: 021000022", "US_BANK_ROUTING"),           // wrong check digit
     ])
     func rejects(_ c: Case) {
         let result = specAnalyzer.analyze(c.text)

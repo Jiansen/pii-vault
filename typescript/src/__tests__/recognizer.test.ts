@@ -1,4 +1,5 @@
-import { RegexRecognizer, luhnCheck, cnIdCheck, brCnpjCheck, nlBsnCheck, containsWord } from '../recognizer';
+import { RegexRecognizer, luhnCheck, cnIdCheck, brCnpjCheck, nlBsnCheck,
+  cpfCheck, peselCheck, verhoeffCheck, nhsCheck, abaCheck, containsWord } from '../recognizer';
 import { EntityType } from '../entity';
 
 describe('RegexRecognizer', () => {
@@ -146,6 +147,52 @@ describe('Validators', () => {
     expect(brCnpjCheck('00.000.000/0000-00')).toBe(false);
     expect(brCnpjCheck('1122233300018')).toBe(false);
     expect(brCnpjCheck('12.ABC.345/01DE-3A')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('BR CPF', () => {
+    expect(cpfCheck('123.456.789-09')).toBe(true);
+    expect(cpfCheck('52998224725')).toBe(true);
+    expect(cpfCheck('123.456.789-08')).toBe(false);
+    expect(cpfCheck('123.456.789-19')).toBe(false);
+    expect(cpfCheck('111.111.111-11')).toBe(false);
+    expect(cpfCheck('1234567890')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('PL PESEL', () => {
+    expect(peselCheck('44051401458')).toBe(true);
+    expect(peselCheck('02070803628')).toBe(true);
+    expect(peselCheck('44051401459')).toBe(false);
+    expect(peselCheck('4405140145')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('Verhoeff', () => {
+    expect(verhoeffCheck('2363')).toBe(true);
+    expect(verhoeffCheck('2364')).toBe(false);
+    expect(verhoeffCheck('4991 1866 5246')).toBe(true);
+    expect(verhoeffCheck('2234 5678 9018')).toBe(true);
+    expect(verhoeffCheck('2234 5678 9012')).toBe(false);
+    expect(verhoeffCheck('')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('UK NHS', () => {
+    expect(nhsCheck('943 476 5919')).toBe(true);
+    expect(nhsCheck('4010232137')).toBe(true);
+    expect(nhsCheck('943 476 5918')).toBe(false);
+    expect(nhsCheck('401 023 2138')).toBe(false);
+    expect(nhsCheck('123456789')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('US ABA routing', () => {
+    expect(abaCheck('021000021')).toBe(true);
+    expect(abaCheck('011000015')).toBe(true);
+    expect(abaCheck('021000022')).toBe(false);
+    expect(abaCheck('000000000')).toBe(false);
+    expect(abaCheck('02100002')).toBe(false);
   });
 
   // Shared with the Rust and Swift tests.

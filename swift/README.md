@@ -74,7 +74,7 @@ Conform to `Recognizer` (`name`, `supportedEntities`, `analyze(_:entities:)`) an
 | `Analyzer` | `analyze(_:entities:scoreThreshold:)` → `AnalyzerResult` (`entities`, `redactionRanges`). `analyzeConcurrently(...)` returns the identical result with patterns run in parallel (~6× on a 106k-character document, 14 cores). |
 | `Anonymizer`, `Operator` | `.replace`, `.mask`, `.hash` (FNV-1a), `.redact`, `.vault`. |
 | `Vault` | Salted reversible tokens, `toJSON()` / `fromJSON(_:)`, v1 vault compatible. Not thread-safe: keep one per actor/queue. |
-| `Checksum` | The validators (Luhn, IBAN, CN ID, DE tax ID, AU ABN/TFN/ACN/Medicare, UK driving licence). |
+| `Checksum` | The validators (Luhn, IBAN, CN ID, DE tax ID, AU ABN/TFN/ACN/Medicare, UK driving licence, UK NHS, US ABA routing, BR CPF/CNPJ, PL PESEL, NL BSN, Verhoeff). |
 
 ### Differences from the Rust implementation
 
