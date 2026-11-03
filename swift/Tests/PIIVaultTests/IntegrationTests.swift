@@ -96,6 +96,27 @@ import Testing
         #expect(banks("Order 98765432101 has shipped") == [])
     }
 
+    private func found(_ text: String, _ type: String) -> [String] {
+        entities(specAnalyzer.analyze(text, scoreThreshold: 0.5), ofType: type).compactMap { $0.text(in: text) }
+    }
+
+    @Test func brazilianCNPJ() {
+        #expect(found("Empresa 11.222.333/0001-81 Ltda", "BR_CNPJ") == ["11.222.333/0001-81"])
+        #expect(found("CNPJ 12.ABC.345/01DE-35", "BR_CNPJ") == ["12.ABC.345/01DE-35"])
+        #expect(found("CNPJ: 11222333000181", "BR_CNPJ") == ["11222333000181"])
+        // Bad check digit; bare 14 digits without context
+        #expect(found("CNPJ 11.222.333/0001-82", "BR_CNPJ") == [])
+        #expect(found("Pedido 11222333000181", "BR_CNPJ") == [])
+    }
+
+    @Test func dutchBSNNeedsContext() {
+        #expect(found("BSN: 123456782", "NL_BSN") == ["123456782"])
+        #expect(found("Burgerservicenummer 1234.56.782", "NL_BSN") == ["1234.56.782"])
+        // Fails the 11-proof; passes it but has no context word
+        #expect(found("BSN: 123456789", "NL_BSN") == [])
+        #expect(found("Order 123456782 shipped", "NL_BSN") == [])
+    }
+
     @Test func multipleEmails() {
         #expect(entities(specAnalyzer.analyze("alice@test.com and bob@test.com"), ofType: "EMAIL_ADDRESS").count == 2)
     }

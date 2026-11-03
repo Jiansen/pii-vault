@@ -122,6 +122,8 @@ impl RegexRecognizer {
                 "au_acn" => { if !au_acn_check(matched) { return false; } }
                 "au_medicare" => { if !au_medicare_check(matched) { return false; } }
                 "uk_driving_licence" => { if !uk_driving_licence_check(matched) { return false; } }
+                "br_cnpj" => { if !br_cnpj_check(matched) { return false; } }
+                "nl_bsn" => { if !nl_bsn_check(matched) { return false; } }
                 _ => {}
             }
         }
@@ -326,6 +328,36 @@ fn uk_driving_licence_check(licence: &str) -> bool {
     !chars[0].is_ascii_digit()
 }
 
+/// CNPJ: 12 base characters (0-9, or A-Z since the July 2026 alphanumeric format) and two
+/// numeric mod-11 check digits. Each character is worth its ASCII code minus 48, so digits
+/// keep their value and 'A' is 17; weights run 2..=9 from the right, repeating.
+fn br_cnpj_check(cnpj: &str) -> bool {
+    let chars: Vec<u8> = cnpj.bytes().filter(|b| b.is_ascii_alphanumeric()).map(|b| b.to_ascii_uppercase()).collect();
+    if chars.len() != 14 || !chars[12..].iter().all(|b| b.is_ascii_digit()) {
+        return false;
+    }
+    // 00.000.000/0000-00, 11.111.111/1111-11 and so on pass the arithmetic but are not issued.
+    if chars.iter().all(|&b| b == chars[0]) {
+        return false;
+    }
+    let values: Vec<u32> = chars.iter().map(|&b| (b - b'0') as u32).collect();
+    let check_digit = |n: usize| {
+        let sum: u32 = values[..n].iter().rev().enumerate().map(|(i, v)| v * (2 + (i as u32 % 8))).sum();
+        if sum % 11 < 2 { 0 } else { 11 - sum % 11 }
+    };
+    check_digit(12) == values[12] && check_digit(13) == values[13]
+}
+
+/// BSN 11-proof: 9*d1 + 8*d2 + ... + 2*d8 - d9 must be a positive multiple of 11.
+fn nl_bsn_check(bsn: &str) -> bool {
+    let digits: Vec<i32> = bsn.chars().filter(|c| c.is_ascii_digit()).filter_map(|c| c.to_digit(10).map(|d| d as i32)).collect();
+    if digits.len() != 9 {
+        return false;
+    }
+    let sum: i32 = digits[..8].iter().enumerate().map(|(i, d)| d * (9 - i as i32)).sum::<i32>() - digits[8];
+    sum > 0 && sum % 11 == 0
+}
+
 pub fn load_recognizers_from_dir(dir: &std::path::Path) -> Vec<Box<dyn Recognizer>> {
     let mut recognizers: Vec<Box<dyn Recognizer>> = Vec::new();
     if let Ok(entries) = std::fs::read_dir(dir) {
@@ -408,6 +440,33 @@ mod tests {
     #[test]
     fn test_cn_id_invalid() {
         assert!(!cn_id_check("110105194912310020"));
+    }
+
+    /// Shared with the TypeScript and Swift tests.
+    #[test]
+    fn test_br_cnpj() {
+        assert!(br_cnpj_check("11.222.333/0001-81"));
+        assert!(br_cnpj_check("11222333000181"));
+        assert!(br_cnpj_check("04.252.011/0001-10"));
+        // Alphanumeric example published by the Receita Federal
+        assert!(br_cnpj_check("12.ABC.345/01DE-35"));
+        assert!(!br_cnpj_check("12.ABC.345/01DE-36"));
+        assert!(!br_cnpj_check("11.222.333/0001-82"));
+        assert!(!br_cnpj_check("11.222.333/0001-91"));
+        assert!(!br_cnpj_check("00.000.000/0000-00"));
+        assert!(!br_cnpj_check("1122233300018"));
+        assert!(!br_cnpj_check("12.ABC.345/01DE-3A"));
+    }
+
+    /// Shared with the TypeScript and Swift tests.
+    #[test]
+    fn test_nl_bsn() {
+        assert!(nl_bsn_check("111222333"));
+        assert!(nl_bsn_check("123456782"));
+        assert!(nl_bsn_check("1234.56.782"));
+        assert!(!nl_bsn_check("123456789"));
+        assert!(!nl_bsn_check("000000000"));
+        assert!(!nl_bsn_check("12345678"));
     }
 
     #[test]

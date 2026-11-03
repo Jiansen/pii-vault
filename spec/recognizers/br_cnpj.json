@@ -1,0 +1,22 @@
+{
+  "name": "br_cnpj_recognizer",
+  "entity_type": "BR_CNPJ",
+  "version": "1.0.0",
+  "note": "CNPJ (Cadastro Nacional da Pessoa Jurídica), 14 characters, two mod-11 check digits. Since July 2026 the Receita Federal also issues alphanumeric CNPJs (IN RFB 2.229/2024): the first 12 characters may be A-Z or 0-9, the check digits stay numeric, and each character counts as its ASCII code minus 48. The formatted pattern takes both forms; the unformatted pattern takes only the 14-digit form, as 14 bare letters and digits are too common to scan for.",
+  "patterns": [
+    {
+      "name": "cnpj_formatted",
+      "regex": "\\b[0-9A-Z]{2}\\.[0-9A-Z]{3}\\.[0-9A-Z]{3}/[0-9A-Z]{4}-\\d{2}\\b",
+      "score": 0.5
+    },
+    {
+      "name": "cnpj_continuous",
+      "regex": "\\b\\d{14}\\b",
+      "score": 0.15
+    }
+  ],
+  "context_words": ["cnpj", "cadastro nacional", "pessoa jurídica", "razão social"],
+  "context_score_boost": 0.4,
+  "validators": ["br_cnpj"],
+  "supported_languages": ["pt", "en"]
+}

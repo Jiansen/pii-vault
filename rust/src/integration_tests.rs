@@ -238,6 +238,34 @@ mod tests {
         assert!(!rrns.is_empty(), "Should detect Korean RRN");
     }
 
+    fn found(analyzer: &Analyzer, text: &str, entity: &str) -> Vec<String> {
+        analyzer.analyze(text, &[], 0.5).entities.iter()
+            .filter(|e| e.entity_type.as_str() == entity)
+            .map(|e| text[e.start..e.end].to_string())
+            .collect()
+    }
+
+    #[test]
+    fn test_br_cnpj_detection() {
+        let analyzer = Analyzer::new(load_spec_recognizers());
+        assert_eq!(found(&analyzer, "Empresa 11.222.333/0001-81 Ltda", "BR_CNPJ"), vec!["11.222.333/0001-81"]);
+        assert_eq!(found(&analyzer, "CNPJ 12.ABC.345/01DE-35", "BR_CNPJ"), vec!["12.ABC.345/01DE-35"]);
+        assert_eq!(found(&analyzer, "CNPJ: 11222333000181", "BR_CNPJ"), vec!["11222333000181"]);
+        // Bad check digit; bare 14 digits without context
+        assert!(found(&analyzer, "CNPJ 11.222.333/0001-82", "BR_CNPJ").is_empty());
+        assert!(found(&analyzer, "Pedido 11222333000181", "BR_CNPJ").is_empty());
+    }
+
+    #[test]
+    fn test_nl_bsn_needs_context() {
+        let analyzer = Analyzer::new(load_spec_recognizers());
+        assert_eq!(found(&analyzer, "BSN: 123456782", "NL_BSN"), vec!["123456782"]);
+        assert_eq!(found(&analyzer, "Burgerservicenummer 1234.56.782", "NL_BSN"), vec!["1234.56.782"]);
+        // Fails the 11-proof; passes it but has no context word
+        assert!(found(&analyzer, "BSN: 123456789", "NL_BSN").is_empty());
+        assert!(found(&analyzer, "Order 123456782 shipped", "NL_BSN").is_empty());
+    }
+
     #[test]
     fn test_full_pipeline_vault() {
         let recs = load_spec_recognizers();

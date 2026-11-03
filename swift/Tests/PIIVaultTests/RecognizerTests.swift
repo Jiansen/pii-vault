@@ -217,6 +217,31 @@ import Testing
         #expect(!Checksum.cnID("110105194912310020"))
     }
 
+    /// Shared with the Rust and TypeScript tests.
+    @Test func brazilianCNPJ() {
+        #expect(Checksum.brCNPJ("11.222.333/0001-81"))
+        #expect(Checksum.brCNPJ("11222333000181"))
+        #expect(Checksum.brCNPJ("04.252.011/0001-10"))
+        // Alphanumeric example published by the Receita Federal
+        #expect(Checksum.brCNPJ("12.ABC.345/01DE-35"))
+        #expect(!Checksum.brCNPJ("12.ABC.345/01DE-36"))
+        #expect(!Checksum.brCNPJ("11.222.333/0001-82"))
+        #expect(!Checksum.brCNPJ("11.222.333/0001-91"))
+        #expect(!Checksum.brCNPJ("00.000.000/0000-00"))
+        #expect(!Checksum.brCNPJ("1122233300018"))
+        #expect(!Checksum.brCNPJ("12.ABC.345/01DE-3A"))
+    }
+
+    /// Shared with the Rust and TypeScript tests.
+    @Test func dutchBSN() {
+        #expect(Checksum.nlBSN("111222333"))
+        #expect(Checksum.nlBSN("123456782"))
+        #expect(Checksum.nlBSN("1234.56.782"))
+        #expect(!Checksum.nlBSN("123456789"))
+        #expect(!Checksum.nlBSN("000000000"))
+        #expect(!Checksum.nlBSN("12345678"))
+    }
+
     @Test func iban() {
         #expect(Checksum.iban("DE89370400440532013000"))
         #expect(Checksum.iban("DE89 3704 0044 0532 0130 00"))

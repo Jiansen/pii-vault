@@ -49,6 +49,8 @@
     { "name": "FR_NIR", "description": "French Social Security Number (NIR)" },
     { "name": "CA_SIN", "description": "Canadian Social Insurance Number" },
     { "name": "BR_CPF", "description": "Brazilian Individual Taxpayer Registration" },
+    { "name": "BR_CNPJ", "description": "Brazilian National Registry of Legal Entities (company tax ID)" },
+    { "name": "NL_BSN", "description": "Dutch Citizen Service Number (burgerservicenummer)" },
     { "name": "ARTIFACTORY_CREDENTIAL", "description": "JFrog Artifactory API token or encrypted password" },
     { "name": "AWS_ACCESS_KEY_ID", "description": "AWS access key ID (AKIA/ASIA/…)" },
     { "name": "AWS_SECRET_ACCESS_KEY", "description": "AWS secret access key assigned to an aws/key variable" },

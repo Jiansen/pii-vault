@@ -157,6 +157,8 @@ export class RegexRecognizer implements Recognizer {
         case 'au_acn': if (!auAcnCheck(matched)) return false; break;
         case 'au_medicare': if (!auMedicareCheck(matched)) return false; break;
         case 'uk_driving_licence': if (!ukDrivingLicenceCheck(matched)) return false; break;
+        case 'br_cnpj': if (!brCnpjCheck(matched)) return false; break;
+        case 'nl_bsn': if (!nlBsnCheck(matched)) return false; break;
       }
     }
     return true;
@@ -282,4 +284,32 @@ export function ukDrivingLicenceCheck(licence: string): boolean {
   // Must start with at least one letter
   if (surname[0] >= '0' && surname[0] <= '9') return false;
   return true;
+}
+
+/**
+ * CNPJ: 12 base characters (0-9, or A-Z since the July 2026 alphanumeric format) and two
+ * numeric mod-11 check digits. Each character is worth its ASCII code minus 48, so digits
+ * keep their value and 'A' is 17; weights run 2..9 from the right, repeating.
+ */
+export function brCnpjCheck(cnpj: string): boolean {
+  const chars = cnpj.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
+  if (chars.length !== 14 || !/^\d{2}$/.test(chars.slice(12))) return false;
+  // 00.000.000/0000-00, 11.111.111/1111-11 and so on pass the arithmetic but are not issued.
+  if (/^(.)\1*$/.test(chars)) return false;
+  const values = chars.split('').map(c => c.charCodeAt(0) - 48);
+  const checkDigit = (n: number): number => {
+    let sum = 0;
+    for (let i = 0; i < n; i++) sum += values[n - 1 - i] * (2 + (i % 8));
+    return sum % 11 < 2 ? 0 : 11 - (sum % 11);
+  };
+  return checkDigit(12) === values[12] && checkDigit(13) === values[13];
+}
+
+/** BSN 11-proof: 9*d1 + 8*d2 + ... + 2*d8 - d9 must be a positive multiple of 11. */
+export function nlBsnCheck(bsn: string): boolean {
+  const d = bsn.replace(/\D/g, '').split('').map(Number);
+  if (d.length !== 9) return false;
+  let sum = -d[8];
+  for (let i = 0; i < 8; i++) sum += d[i] * (9 - i);
+  return sum > 0 && sum % 11 === 0;
 }

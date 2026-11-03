@@ -139,6 +139,27 @@ describe('Integration: Spec-loaded recognizers', () => {
     expect(rrns.length).toBe(1);
   });
 
+  const found = (text: string, type: string) => analyzer.analyze(text, [], 0.5).entities
+    .filter(e => e.entityType.name === type)
+    .map(e => text.slice(e.start, e.end));
+
+  test('detects Brazilian CNPJ', () => {
+    expect(found('Empresa 11.222.333/0001-81 Ltda', 'BR_CNPJ')).toEqual(['11.222.333/0001-81']);
+    expect(found('CNPJ 12.ABC.345/01DE-35', 'BR_CNPJ')).toEqual(['12.ABC.345/01DE-35']);
+    expect(found('CNPJ: 11222333000181', 'BR_CNPJ')).toEqual(['11222333000181']);
+    // Bad check digit; bare 14 digits without context
+    expect(found('CNPJ 11.222.333/0001-82', 'BR_CNPJ')).toEqual([]);
+    expect(found('Pedido 11222333000181', 'BR_CNPJ')).toEqual([]);
+  });
+
+  test('detects Dutch BSN only with context', () => {
+    expect(found('BSN: 123456782', 'NL_BSN')).toEqual(['123456782']);
+    expect(found('Burgerservicenummer 1234.56.782', 'NL_BSN')).toEqual(['1234.56.782']);
+    // Fails the 11-proof; passes it but has no context word
+    expect(found('BSN: 123456789', 'NL_BSN')).toEqual([]);
+    expect(found('Order 123456782 shipped', 'NL_BSN')).toEqual([]);
+  });
+
   test('detects IBAN', () => {
     const result = analyzer.analyze('IBAN: DE89370400440532013000');
     const ibans = result.entities.filter(e => e.entityType.name === 'IBAN_CODE');

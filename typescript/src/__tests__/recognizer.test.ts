@@ -1,4 +1,4 @@
-import { RegexRecognizer, luhnCheck, cnIdCheck, containsWord } from '../recognizer';
+import { RegexRecognizer, luhnCheck, cnIdCheck, brCnpjCheck, nlBsnCheck, containsWord } from '../recognizer';
 import { EntityType } from '../entity';
 
 describe('RegexRecognizer', () => {
@@ -131,6 +131,31 @@ describe('Validators', () => {
 
   test('Chinese ID invalid', () => {
     expect(cnIdCheck('110105194912310020')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('BR CNPJ', () => {
+    expect(brCnpjCheck('11.222.333/0001-81')).toBe(true);
+    expect(brCnpjCheck('11222333000181')).toBe(true);
+    expect(brCnpjCheck('04.252.011/0001-10')).toBe(true);
+    // Alphanumeric example published by the Receita Federal
+    expect(brCnpjCheck('12.ABC.345/01DE-35')).toBe(true);
+    expect(brCnpjCheck('12.ABC.345/01DE-36')).toBe(false);
+    expect(brCnpjCheck('11.222.333/0001-82')).toBe(false);
+    expect(brCnpjCheck('11.222.333/0001-91')).toBe(false);
+    expect(brCnpjCheck('00.000.000/0000-00')).toBe(false);
+    expect(brCnpjCheck('1122233300018')).toBe(false);
+    expect(brCnpjCheck('12.ABC.345/01DE-3A')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('NL BSN', () => {
+    expect(nlBsnCheck('111222333')).toBe(true);
+    expect(nlBsnCheck('123456782')).toBe(true);
+    expect(nlBsnCheck('1234.56.782')).toBe(true);
+    expect(nlBsnCheck('123456789')).toBe(false);
+    expect(nlBsnCheck('000000000')).toBe(false);
+    expect(nlBsnCheck('12345678')).toBe(false);
   });
 });
 

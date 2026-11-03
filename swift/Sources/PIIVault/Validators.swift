@@ -9,6 +9,8 @@ enum Validator: String, Sendable {
     case auACN = "au_acn"
     case auMedicare = "au_medicare"
     case ukDrivingLicence = "uk_driving_licence"
+    case brCNPJ = "br_cnpj"
+    case nlBSN = "nl_bsn"
 
     func validate(_ matched: String) -> Bool {
         switch self {
@@ -21,6 +23,8 @@ enum Validator: String, Sendable {
         case .auACN: Checksum.auACN(matched)
         case .auMedicare: Checksum.auMedicare(matched)
         case .ukDrivingLicence: Checksum.ukDrivingLicence(matched)
+        case .brCNPJ: Checksum.brCNPJ(matched)
+        case .nlBSN: Checksum.nlBSN(matched)
         }
     }
 }
@@ -177,5 +181,40 @@ public enum Checksum {
         }
         // Must start with at least one letter
         return !(text[0] >= 0x30 && text[0] <= 0x39)
+    }
+
+    /// CNPJ: 12 base characters (0-9, or A-Z since the July 2026 alphanumeric format) and two
+    /// numeric mod-11 check digits. Each character is worth its ASCII code minus 48, so digits
+    /// keep their value and "A" is 17; weights run 2...9 from the right, repeating.
+    public static func brCNPJ(_ cnpj: String) -> Bool {
+        let isDigit = { (b: UInt8) in b >= 0x30 && b <= 0x39 }
+        let chars: [UInt8] = cnpj.utf8.compactMap { b in
+            if isDigit(b) || (b >= 0x41 && b <= 0x5A) { return b }
+            if b >= 0x61 && b <= 0x7A { return b - 0x20 }
+            return nil
+        }
+        if chars.count != 14 || !chars[12...].allSatisfy(isDigit) {
+            return false
+        }
+        // 00.000.000/0000-00, 11.111.111/1111-11 and so on pass the arithmetic but are not issued.
+        if chars.allSatisfy({ $0 == chars[0] }) {
+            return false
+        }
+        let values = chars.map { Int($0) - 0x30 }
+        func checkDigit(_ n: Int) -> Int {
+            let sum = values[..<n].reversed().enumerated().reduce(0) { $0 + $1.element * (2 + $1.offset % 8) }
+            return sum % 11 < 2 ? 0 : 11 - sum % 11
+        }
+        return checkDigit(12) == values[12] && checkDigit(13) == values[13]
+    }
+
+    /// BSN 11-proof: 9*d1 + 8*d2 + ... + 2*d8 - d9 must be a positive multiple of 11.
+    public static func nlBSN(_ bsn: String) -> Bool {
+        let d = asciiDigits(bsn)
+        if d.count != 9 {
+            return false
+        }
+        let sum = d[..<8].enumerated().reduce(0) { $0 + $1.element * (9 - $1.offset) } - d[8]
+        return sum > 0 && sum % 11 == 0
     }
 }
