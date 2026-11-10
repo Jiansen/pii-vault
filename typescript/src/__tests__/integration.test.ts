@@ -61,6 +61,23 @@ describe('Integration: Spec-loaded recognizers', () => {
     expect(cards.length).toBeGreaterThanOrEqual(1);
   });
 
+  // 13 to 15 digits run together are also the shape of a phone number: the card, whose
+  // check digit is right, is the one kept.
+  test.each(['378282246310005', '30569309025904', '4222222222222'])('keeps the card over the phone shape: %s', (text) => {
+    const result = analyzer.analyze(text);
+    expect(result.entities.some(e => e.entityType.name === 'CREDIT_CARD')).toBe(true);
+  });
+
+  test.each(['银行卡 6222 0212 3456 7890 128', '银行卡 6222021234567890128', '卡号 6222-0212-3456-7894'])('detects a Chinese bank card in groups: %s', (text) => {
+    const result = analyzer.analyze(text);
+    expect(result.entities.some(e => e.entityType.name === 'CN_BANK_CARD')).toBe(true);
+  });
+
+  test('rejects a Chinese bank card with a wrong check digit', () => {
+    const result = analyzer.analyze('银行卡 6222 0212 3456 7890 127');
+    expect(result.entities.some(e => e.entityType.name === 'CN_BANK_CARD')).toBe(false);
+  });
+
   test('rejects credit card (invalid Luhn)', () => {
     const result = analyzer.analyze('Card: 1234567890123456');
     const cards = result.entities.filter(e => e.entityType.name === 'CREDIT_CARD');

@@ -1,13 +1,13 @@
 {
   "name": "credit_card_recognizer",
   "entity_type": "CREDIT_CARD",
-  "version": "1.1.0",
-  "note": "Regex aligned with Microsoft Presidio (MIT License)",
+  "version": "1.2.0",
+  "note": "Regex aligned with Microsoft Presidio (MIT License). The score is above a bare phone number's 0.4: a 13 to 15 digit card number with no separators is also the shape of a phone number, and of the two matches of the same text only the higher is kept. The card has passed its check digit, the phone shape has passed nothing.",
   "patterns": [
     {
       "name": "all_credit_cards",
       "regex": "\\b(?:4\\d{3}|5[0-5]\\d{2}|6\\d{3}|1\\d{3}|3\\d{3})[- ]?\\d{3,4}[- ]?\\d{3,4}[- ]?\\d{3,5}\\b",
-      "score": 0.3
+      "score": 0.45
     }
   ],
   "context_words": ["credit", "card", "visa", "mastercard", "cc", "amex", "discover", "jcb", "diners", "maestro", "信用卡", "银行卡"],

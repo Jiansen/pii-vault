@@ -95,6 +95,30 @@ mod tests {
         assert!(!cards.is_empty(), "Should detect valid credit card");
     }
 
+    /// 13 to 15 digits run together are also the shape of a phone number: the card, whose
+    /// check digit is right, is the one kept.
+    #[test]
+    fn test_credit_card_kept_over_phone_shape() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        for text in ["378282246310005", "30569309025904", "4222222222222"] {
+            let result = analyzer.analyze(text, &[], 0.0);
+            assert!(result.entities.iter().any(|e| e.entity_type.as_str() == "CREDIT_CARD"), "no card in {text}");
+        }
+    }
+
+    #[test]
+    fn test_cn_bank_card_in_groups() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        for text in ["银行卡 6222 0212 3456 7890 128", "银行卡 6222021234567890128", "卡号 6222-0212-3456-7894"] {
+            let result = analyzer.analyze(text, &[], 0.0);
+            assert!(result.entities.iter().any(|e| e.entity_type.as_str() == "CN_BANK_CARD"), "no bank card in {text}");
+        }
+        let wrong = analyzer.analyze("银行卡 6222 0212 3456 7890 127", &[], 0.0);
+        assert!(!wrong.entities.iter().any(|e| e.entity_type.as_str() == "CN_BANK_CARD"), "wrong check digit accepted");
+    }
+
     #[test]
     fn test_credit_card_invalid_luhn() {
         let recs = load_spec_recognizers();

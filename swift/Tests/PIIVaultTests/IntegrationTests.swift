@@ -26,6 +26,14 @@ import Testing
         Case("身份证号: 11010519491231002X", "CN_ID_CARD"),
         Case("手机号: +86 13912345678", "CN_PHONE", "PHONE_NUMBER"),
         Case("Card: 4111111111111111", "CREDIT_CARD"),
+        // 13 to 15 digits run together are also the shape of a phone number: the card, whose
+        // check digit is right, is the one kept.
+        Case("378282246310005", "CREDIT_CARD"),
+        Case("30569309025904", "CREDIT_CARD"),
+        Case("4222222222222", "CREDIT_CARD"),
+        Case("银行卡 6222 0212 3456 7890 128", "CN_BANK_CARD"),
+        Case("银行卡 6222021234567890128", "CN_BANK_CARD"),
+        Case("卡号 6222-0212-3456-7894", "CN_BANK_CARD"),
         Case("Server at 192.168.1.100", "IP_ADDRESS"),
         Case("Visit https://example.com/page", "URL"),
         Case("ID: 550e8400-e29b-41d4-a716-446655440000", "UUID"),
@@ -62,6 +70,7 @@ import Testing
 
     @Test(arguments: [
         Case("Card: 1234567890123456", "CREDIT_CARD"),          // invalid Luhn
+        Case("银行卡 6222 0212 3456 7890 127", "CN_BANK_CARD"),   // invalid Luhn
         Case("localhost is 127.0.0.1", "IP_ADDRESS"),           // deny list
         Case("IBAN: DE00370400440532013000", "IBAN_CODE"),      // invalid checksum
         Case("99999657054SM9IJ", "UK_DRIVING_LICENCE"),         // all-9s surname
