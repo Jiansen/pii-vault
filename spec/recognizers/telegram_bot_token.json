@@ -1,0 +1,16 @@
+{
+  "name": "telegram_bot_token_recognizer",
+  "entity_type": "TELEGRAM_BOT_TOKEN",
+  "version": "1.0.0",
+  "note": "Telegram bot token: 8–10 digit bot ID, ':', 35-character secret. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/telegram_token.py, which anchors the token to the whole line (^…$); here \\b is used so tokens inside longer text are found.",
+  "patterns": [
+    {
+      "name": "telegram_bot_token",
+      "regex": "\\b[0-9]{8,10}:[A-Za-z0-9_\\-]{35}\\b",
+      "score": 0.85
+    }
+  ],
+  "context_words": ["telegram", "bot", "botfather"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

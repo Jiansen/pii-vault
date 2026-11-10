@@ -1,4 +1,5 @@
-import { RegexRecognizer, luhnCheck, cnIdCheck } from '../recognizer';
+import { RegexRecognizer, luhnCheck, cnIdCheck, brCnpjCheck, nlBsnCheck,
+  cpfCheck, peselCheck, verhoeffCheck, nhsCheck, abaCheck, containsWord } from '../recognizer';
 import { EntityType } from '../entity';
 
 describe('RegexRecognizer', () => {
@@ -131,5 +132,115 @@ describe('Validators', () => {
 
   test('Chinese ID invalid', () => {
     expect(cnIdCheck('110105194912310020')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('BR CNPJ', () => {
+    expect(brCnpjCheck('11.222.333/0001-81')).toBe(true);
+    expect(brCnpjCheck('11222333000181')).toBe(true);
+    expect(brCnpjCheck('04.252.011/0001-10')).toBe(true);
+    // Alphanumeric example published by the Receita Federal
+    expect(brCnpjCheck('12.ABC.345/01DE-35')).toBe(true);
+    expect(brCnpjCheck('12.ABC.345/01DE-36')).toBe(false);
+    expect(brCnpjCheck('11.222.333/0001-82')).toBe(false);
+    expect(brCnpjCheck('11.222.333/0001-91')).toBe(false);
+    expect(brCnpjCheck('00.000.000/0000-00')).toBe(false);
+    expect(brCnpjCheck('1122233300018')).toBe(false);
+    expect(brCnpjCheck('12.ABC.345/01DE-3A')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('BR CPF', () => {
+    expect(cpfCheck('123.456.789-09')).toBe(true);
+    expect(cpfCheck('52998224725')).toBe(true);
+    expect(cpfCheck('123.456.789-08')).toBe(false);
+    expect(cpfCheck('123.456.789-19')).toBe(false);
+    expect(cpfCheck('111.111.111-11')).toBe(false);
+    expect(cpfCheck('1234567890')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('PL PESEL', () => {
+    expect(peselCheck('44051401458')).toBe(true);
+    expect(peselCheck('02070803628')).toBe(true);
+    expect(peselCheck('44051401459')).toBe(false);
+    expect(peselCheck('4405140145')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('Verhoeff', () => {
+    expect(verhoeffCheck('2363')).toBe(true);
+    expect(verhoeffCheck('2364')).toBe(false);
+    expect(verhoeffCheck('4991 1866 5246')).toBe(true);
+    expect(verhoeffCheck('2234 5678 9018')).toBe(true);
+    expect(verhoeffCheck('2234 5678 9012')).toBe(false);
+    expect(verhoeffCheck('')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('UK NHS', () => {
+    expect(nhsCheck('943 476 5919')).toBe(true);
+    expect(nhsCheck('4010232137')).toBe(true);
+    expect(nhsCheck('943 476 5918')).toBe(false);
+    expect(nhsCheck('401 023 2138')).toBe(false);
+    expect(nhsCheck('123456789')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('US ABA routing', () => {
+    expect(abaCheck('021000021')).toBe(true);
+    expect(abaCheck('011000015')).toBe(true);
+    expect(abaCheck('021000022')).toBe(false);
+    expect(abaCheck('000000000')).toBe(false);
+    expect(abaCheck('02100002')).toBe(false);
+  });
+
+  // Shared with the Rust and Swift tests.
+  test('NL BSN', () => {
+    expect(nlBsnCheck('111222333')).toBe(true);
+    expect(nlBsnCheck('123456782')).toBe(true);
+    expect(nlBsnCheck('1234.56.782')).toBe(true);
+    expect(nlBsnCheck('123456789')).toBe(false);
+    expect(nlBsnCheck('000000000')).toBe(false);
+    expect(nlBsnCheck('12345678')).toBe(false);
+  });
+});
+
+describe('context words match whole words', () => {
+  // Shared with the Rust and Swift tests: the same cases, the same answers.
+  const cases: Array<[string, string, boolean]> = [
+    ['tel: 555 1234', 'tel', true],
+    ['hotel 555 1234', 'tel', false],
+    ['the hotel tel line', 'tel', true],
+    ['valid until', 'id', false],
+    ['id: 42', 'id', true],
+    ['aws_secret_access_key=', 'secret', true],
+    ['e-mail me', 'mail', true],
+    ['accounts', 'account', true],
+    ['calls', 'call', true],
+    ['callsign', 'call', false],
+    ['ids', 'id', true],
+    ['联系电话：', '电话', true],
+    ['phone号码', 'phone', true],
+    ['주민등록번호는', '주민등록번호', true],
+    ['bass#1', 'ss#', false],
+    ['ss#123', 'ss#', true],
+    ['\u{1D400}tel', 'tel', false],
+    ['tel\u{1D400}', 'tel', false],
+    ['anything', '', true],
+  ];
+  test.each(cases)('%j contains %j: %s', (window, word, expected) => {
+    expect(containsWord(window, word)).toBe(expected);
+  });
+
+  test('a context word inside a longer word does not boost', () => {
+    const rec = new RegexRecognizer({
+      name: 'phone', entity_type: 'PHONE_NUMBER', version: '1.0.0',
+      patterns: [{ name: 'us', regex: '\\d{3}-\\d{4}', score: 0.4 }],
+      context_words: ['tel'], context_score_boost: 0.4,
+    });
+    const score = (text: string) => rec.analyze(text, [])[0].score;
+    expect(score('Tel: 555-1234')).toBeCloseTo(0.8);
+    expect(score('Hotel room 555-1234')).toBeCloseTo(0.4);
   });
 });

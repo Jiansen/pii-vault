@@ -51,6 +51,18 @@ mod tests {
     }
 
     #[test]
+    fn test_us_bank_number_needs_context() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        let banks = |text: &str| analyzer.analyze(text, &[], 0.5).entities.iter()
+            .filter(|e| e.entity_type.as_str() == "US_BANK_NUMBER")
+            .map(|e| text[e.start..e.end].to_string())
+            .collect::<Vec<_>>();
+        assert_eq!(banks("Regular Checking 98765432101"), vec!["98765432101"]);
+        assert_eq!(banks("Order 98765432101 has shipped"), Vec::<String>::new());
+    }
+
+    #[test]
     fn test_cn_id_detection() {
         let recs = load_spec_recognizers();
         let analyzer = Analyzer::new(recs);
@@ -81,6 +93,30 @@ mod tests {
             .filter(|e| e.entity_type.as_str() == "CREDIT_CARD")
             .collect();
         assert!(!cards.is_empty(), "Should detect valid credit card");
+    }
+
+    /// 13 to 15 digits run together are also the shape of a phone number: the card, whose
+    /// check digit is right, is the one kept.
+    #[test]
+    fn test_credit_card_kept_over_phone_shape() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        for text in ["378282246310005", "30569309025904", "4222222222222"] {
+            let result = analyzer.analyze(text, &[], 0.0);
+            assert!(result.entities.iter().any(|e| e.entity_type.as_str() == "CREDIT_CARD"), "no card in {text}");
+        }
+    }
+
+    #[test]
+    fn test_cn_bank_card_in_groups() {
+        let recs = load_spec_recognizers();
+        let analyzer = Analyzer::new(recs);
+        for text in ["银行卡 6222 0212 3456 7890 128", "银行卡 6222021234567890128", "卡号 6222-0212-3456-7894"] {
+            let result = analyzer.analyze(text, &[], 0.0);
+            assert!(result.entities.iter().any(|e| e.entity_type.as_str() == "CN_BANK_CARD"), "no bank card in {text}");
+        }
+        let wrong = analyzer.analyze("银行卡 6222 0212 3456 7890 127", &[], 0.0);
+        assert!(!wrong.entities.iter().any(|e| e.entity_type.as_str() == "CN_BANK_CARD"), "wrong check digit accepted");
     }
 
     #[test]
@@ -224,6 +260,63 @@ mod tests {
             .filter(|e| e.entity_type.as_str() == "KR_RRN")
             .collect();
         assert!(!rrns.is_empty(), "Should detect Korean RRN");
+    }
+
+    fn found(analyzer: &Analyzer, text: &str, entity: &str) -> Vec<String> {
+        analyzer.analyze(text, &[], 0.5).entities.iter()
+            .filter(|e| e.entity_type.as_str() == entity)
+            .map(|e| text[e.start..e.end].to_string())
+            .collect()
+    }
+
+    #[test]
+    fn test_kr_rrn_foreigner_and_date() {
+        let analyzer = Analyzer::new(load_spec_recognizers());
+        // 5-8 in the 7th digit: foreign residents (외국인등록번호), same format
+        assert_eq!(found(&analyzer, "외국인등록번호: 900101-5123456", "KR_RRN"), vec!["900101-5123456"]);
+        // Month 13 and day 32 are not dates of birth
+        assert!(found(&analyzer, "ref 851301-1234567", "KR_RRN").is_empty());
+        assert!(found(&analyzer, "ref 850132-1234567", "KR_RRN").is_empty());
+    }
+
+    /// Same cases in the TypeScript and Swift tests.
+    #[test]
+    fn test_checksum_validators_on_spec_rules() {
+        let analyzer = Analyzer::new(load_spec_recognizers());
+        let detected = |text: &str, entity: &str| analyzer.analyze(text, &[], 0.0).entities.iter()
+            .any(|e| e.entity_type.as_str() == entity);
+        assert!(detected("CPF: 529.982.247-25", "BR_CPF"), "CPF: 529.982.247-25");
+        assert!(detected("PESEL: 02070803628", "PL_PESEL"), "PESEL: 02070803628");
+        assert!(detected("Aadhaar: 4991 1866 5246", "IN_AADHAAR"), "Aadhaar: 4991 1866 5246");
+        assert!(detected("NHS number: 401 023 2137", "UK_NHS"), "NHS number: 401 023 2137");
+        assert!(detected("Routing: 011000015", "US_BANK_ROUTING"), "Routing: 011000015");
+        // Same numbers with a wrong check digit
+        assert!(!detected("CPF: 123.456.789-08", "BR_CPF"), "CPF: 123.456.789-08");
+        assert!(!detected("PESEL: 44051401459", "PL_PESEL"), "PESEL: 44051401459");
+        assert!(!detected("Aadhaar: 2234 5678 9012", "IN_AADHAAR"), "Aadhaar: 2234 5678 9012");
+        assert!(!detected("NHS number: 943 476 5918", "UK_NHS"), "NHS number: 943 476 5918");
+        assert!(!detected("Routing: 021000022", "US_BANK_ROUTING"), "Routing: 021000022");
+    }
+
+    #[test]
+    fn test_br_cnpj_detection() {
+        let analyzer = Analyzer::new(load_spec_recognizers());
+        assert_eq!(found(&analyzer, "Empresa 11.222.333/0001-81 Ltda", "BR_CNPJ"), vec!["11.222.333/0001-81"]);
+        assert_eq!(found(&analyzer, "CNPJ 12.ABC.345/01DE-35", "BR_CNPJ"), vec!["12.ABC.345/01DE-35"]);
+        assert_eq!(found(&analyzer, "CNPJ: 11222333000181", "BR_CNPJ"), vec!["11222333000181"]);
+        // Bad check digit; bare 14 digits without context
+        assert!(found(&analyzer, "CNPJ 11.222.333/0001-82", "BR_CNPJ").is_empty());
+        assert!(found(&analyzer, "Pedido 11222333000181", "BR_CNPJ").is_empty());
+    }
+
+    #[test]
+    fn test_nl_bsn_needs_context() {
+        let analyzer = Analyzer::new(load_spec_recognizers());
+        assert_eq!(found(&analyzer, "BSN: 123456782", "NL_BSN"), vec!["123456782"]);
+        assert_eq!(found(&analyzer, "Burgerservicenummer 1234.56.782", "NL_BSN"), vec!["1234.56.782"]);
+        // Fails the 11-proof; passes it but has no context word
+        assert!(found(&analyzer, "BSN: 123456789", "NL_BSN").is_empty());
+        assert!(found(&analyzer, "Order 123456782 shipped", "NL_BSN").is_empty());
     }
 
     #[test]

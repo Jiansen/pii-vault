@@ -1,0 +1,16 @@
+{
+  "name": "npm_token_recognizer",
+  "entity_type": "NPM_TOKEN",
+  "version": "1.0.0",
+  "note": "npm auth token in an .npmrc line: //registry/:_authToken=npm_… or a 36-character UUID-style legacy token. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/npm.py. Like the original, the match runs to the end of the line, so the registry host is redacted too.",
+  "patterns": [
+    {
+      "name": "npmrc_auth_token",
+      "regex": "//.+/:_authToken=\\s*(?:npm_.+|[A-Fa-f0-9\\-]{36}).*",
+      "score": 0.9
+    }
+  ],
+  "context_words": ["npm", "npmrc", "registry"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

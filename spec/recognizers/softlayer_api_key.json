@@ -1,0 +1,21 @@
+{
+  "name": "softlayer_api_key_recognizer",
+  "entity_type": "SOFTLAYER_API_KEY",
+  "version": "1.0.0",
+  "note": "IBM SoftLayer API key (64 alphanumerics) assigned to a softlayer/sl + key/password/token variable, or in an api.softlayer.com/soap/v3[.1]/ URL. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/softlayer.py (case-insensitive); the original's unescaped dots in the URL are escaped here. Matches include the variable name or URL.",
+  "patterns": [
+    {
+      "name": "softlayer_api_key_assignment",
+      "regex": "\\b(?:[Ss][Oo][Ff][Tt][Ll][Aa][Yy][Ee][Rr]|[Ss][Ll])(?:_|\\-|)(?:[Aa][Pp][Ii]|)(?:_|\\-|)(?:[Kk][Ee][Yy]|[Pp][Ww][Dd]|[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]|[Pp][Aa][Ss][Ss]|[Tt][Oo][Kk][Ee][Nn])(?:\\\"|'|)(?:\\]|)(?: *)(?:=|:|:=|=>| +|::)(?: *)(?:\\\"|'|)[a-zA-Z0-9]{64}(?:\\\"|'|)",
+      "score": 0.8
+    },
+    {
+      "name": "softlayer_api_key_url",
+      "regex": "[Hh][Tt][Tt][Pp][Ss]?://[Aa][Pp][Ii]\\.[Ss][Oo][Ff][Tt][Ll][Aa][Yy][Ee][Rr]\\.[Cc][Oo][Mm]/[Ss][Oo][Aa][Pp]/[Vv]3(?:\\.1)?/[a-zA-Z0-9]{64}",
+      "score": 0.9
+    }
+  ],
+  "context_words": ["softlayer", "ibm cloud", "bluemix"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

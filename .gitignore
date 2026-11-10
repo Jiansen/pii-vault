@@ -24,3 +24,16 @@ dist/
 Thumbs.db
 benchmark/results_*.json
 benchmark/comparison.json
+benchmark/comparison_impls.json
+
+# Swift
+swift/.build/
+swift/.swiftpm/
+__pycache__/
+
+# Claude Code local agent files
+.claude/
+
+# Swift package at the root
+/.build/
+/.swiftpm/

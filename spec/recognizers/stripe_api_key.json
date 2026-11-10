@@ -1,0 +1,16 @@
+{
+  "name": "stripe_api_key_recognizer",
+  "entity_type": "STRIPE_API_KEY",
+  "version": "1.0.0",
+  "note": "Stripe live secret (sk_live_) or restricted (rk_live_) key. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/stripe.py, which matches exactly 24 characters after the prefix; current keys are often ~99 characters, so this matches 24 or more to redact the whole key. Test-mode keys (sk_test_) are not covered, as in the original.",
+  "patterns": [
+    {
+      "name": "stripe_live_key",
+      "regex": "\\b[rs]k_live_[0-9a-zA-Z]{24,}",
+      "score": 0.95
+    }
+  ],
+  "context_words": ["stripe", "secret key", "api key"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

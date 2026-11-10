@@ -1,0 +1,16 @@
+{
+  "name": "sendgrid_api_key_recognizer",
+  "entity_type": "SENDGRID_API_KEY",
+  "version": "1.0.0",
+  "note": "SendGrid API key: 'SG.' + 22-character key ID + '.' + 43-character secret. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/sendgrid.py; leading \\b added.",
+  "patterns": [
+    {
+      "name": "sendgrid_api_key",
+      "regex": "\\bSG\\.[A-Za-z0-9_\\-]{22}\\.[A-Za-z0-9_\\-]{43}",
+      "score": 0.95
+    }
+  ],
+  "context_words": ["sendgrid", "email", "smtp"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

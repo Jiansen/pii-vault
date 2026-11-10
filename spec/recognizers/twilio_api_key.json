@@ -1,0 +1,21 @@
+{
+  "name": "twilio_api_key_recognizer",
+  "entity_type": "TWILIO_API_KEY",
+  "version": "1.0.0",
+  "note": "Twilio account SID (AC + 32) and API key SID (SK + 32), lowercase alphanumerics. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/twilio.py; \\b added on both sides. SIDs identify rather than authenticate, and 'AC'/'SK' + 32 characters can collide with other identifiers, so the base score is moderate.",
+  "patterns": [
+    {
+      "name": "twilio_account_sid",
+      "regex": "\\bAC[a-z0-9]{32}\\b",
+      "score": 0.6
+    },
+    {
+      "name": "twilio_api_key_sid",
+      "regex": "\\bSK[a-z0-9]{32}\\b",
+      "score": 0.6
+    }
+  ],
+  "context_words": ["twilio", "account sid", "api key", "auth token"],
+  "context_score_boost": 0.3,
+  "supported_languages": null
+}

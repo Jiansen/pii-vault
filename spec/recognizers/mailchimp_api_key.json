@@ -1,0 +1,16 @@
+{
+  "name": "mailchimp_api_key_recognizer",
+  "entity_type": "MAILCHIMP_API_KEY",
+  "version": "1.0.0",
+  "note": "Mailchimp API key: 32 lowercase hex/alphanumerics + '-us' + datacenter number. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/mailchimp.py; \\b added on both sides.",
+  "patterns": [
+    {
+      "name": "mailchimp_api_key",
+      "regex": "\\b[0-9a-z]{32}-us[0-9]{1,2}\\b",
+      "score": 0.85
+    }
+  ],
+  "context_words": ["mailchimp", "mandrill", "api key"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

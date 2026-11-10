@@ -1,0 +1,21 @@
+{
+  "name": "slack_token_recognizer",
+  "entity_type": "SLACK_TOKEN",
+  "version": "1.0.0",
+  "note": "Slack tokens xoxa-/xoxb- (bot)/xoxp- (user)/xoxo-/xoxs-/xoxr- (refresh) and incoming-webhook URLs (hooks.slack.com/services/T…/B…/…). Source: detect-secrets (Apache-2.0) detect_secrets/plugins/slack.py (case-insensitive). The webhook match overlaps the URL recognizer and outranks it.",
+  "patterns": [
+    {
+      "name": "slack_token",
+      "regex": "\\b[Xx][Oo][Xx][AaBbPpOoSsRr]-(?:[0-9]+-)+[A-Za-z0-9]+",
+      "score": 0.9
+    },
+    {
+      "name": "slack_webhook",
+      "regex": "[Hh][Tt][Tt][Pp][Ss]://[Hh][Oo][Oo][Kk][Ss]\\.[Ss][Ll][Aa][Cc][Kk]\\.[Cc][Oo][Mm]/[Ss][Ee][Rr][Vv][Ii][Cc][Ee][Ss]/[Tt][a-zA-Z0-9_]+/[Bb][a-zA-Z0-9_]+/[a-zA-Z0-9_]+",
+      "score": 0.9
+    }
+  ],
+  "context_words": ["slack", "webhook", "bot token"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

@@ -1,0 +1,46 @@
+{
+  "name": "gitlab_token_recognizer",
+  "entity_type": "GITLAB_TOKEN",
+  "version": "1.0.0",
+  "note": "GitLab tokens by prefix: glpat- (personal access), gldt- (deploy), glft- (feed), glsoat- (SCIM OAuth), glrt- (runner auth), GR1348941 (runner registration), glcbt- (CI/CD job), glimt- (incoming mail), glptt- (pipeline trigger), glagent- (Kubernetes agent), gloas- (OAuth app secret). Source: detect-secrets (Apache-2.0) detect_secrets/plugins/gitlab_token.py. The original's trailing (?!\\w) lookahead is approximated with \\b.",
+  "patterns": [
+    {
+      "name": "gitlab_prefixed_token",
+      "regex": "\\b(?:glpat|gldt|glft|glsoat|glrt)-[A-Za-z0-9_\\-]{20,50}\\b",
+      "score": 0.95
+    },
+    {
+      "name": "gitlab_runner_registration",
+      "regex": "\\bGR1348941[A-Za-z0-9_\\-]{20,50}\\b",
+      "score": 0.9
+    },
+    {
+      "name": "gitlab_ci_build_token",
+      "regex": "\\bglcbt-(?:[0-9a-fA-F]{2}_)?[A-Za-z0-9_\\-]{20,50}\\b",
+      "score": 0.95
+    },
+    {
+      "name": "gitlab_incoming_mail_token",
+      "regex": "\\bglimt-[A-Za-z0-9_\\-]{25}\\b",
+      "score": 0.95
+    },
+    {
+      "name": "gitlab_trigger_token",
+      "regex": "\\bglptt-[A-Za-z0-9_\\-]{40}\\b",
+      "score": 0.95
+    },
+    {
+      "name": "gitlab_agent_token",
+      "regex": "\\bglagent-[A-Za-z0-9_\\-]{50,1024}\\b",
+      "score": 0.95
+    },
+    {
+      "name": "gitlab_oauth_secret",
+      "regex": "\\bgloas-[A-Za-z0-9_\\-]{64}\\b",
+      "score": 0.95
+    }
+  ],
+  "context_words": ["gitlab", "token", "runner"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

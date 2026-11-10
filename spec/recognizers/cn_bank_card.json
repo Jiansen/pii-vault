@@ -1,11 +1,12 @@
 {
   "name": "cn_bank_card_recognizer",
   "entity_type": "CN_BANK_CARD",
-  "version": "1.0.0",
+  "version": "1.1.0",
+  "note": "16 to 19 digits, as printed on the card in groups of four or run together.",
   "patterns": [
     {
       "name": "cn_bank_card",
-      "regex": "\\b[1-9]\\d{15,18}\\b",
+      "regex": "\\b[1-9]\\d{3}(?:[ -]?\\d{4}){3}(?:[ -]?\\d{1,3})?\\b",
       "score": 0.1
     }
   ],

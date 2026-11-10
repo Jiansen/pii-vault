@@ -1,0 +1,16 @@
+{
+  "name": "jwt_recognizer",
+  "entity_type": "JWT",
+  "version": "1.0.0",
+  "note": "JSON Web Token: base64url header starting with eyJ ('{\"'), '.', payload, optional '.signature'. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/jwt.py. Two fixes vs. the original: its classes [A-Za-z0-9-_=] contain the range 9-_ (which admits :;<=>?@[\\]^), and its signature part was lazy (*?) and therefore never matched; here the signature is included so it is redacted. The original's base64/JSON decoding check is not reproduced.",
+  "patterns": [
+    {
+      "name": "jwt",
+      "regex": "\\beyJ[A-Za-z0-9_\\-=]+\\.[A-Za-z0-9_\\-=]+(?:\\.[A-Za-z0-9_\\-+/=]*)?",
+      "score": 0.85
+    }
+  ],
+  "context_words": ["jwt", "bearer", "authorization", "token", "id_token", "access_token"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

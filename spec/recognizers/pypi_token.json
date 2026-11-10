@@ -1,0 +1,21 @@
+{
+  "name": "pypi_token_recognizer",
+  "entity_type": "PYPI_TOKEN",
+  "version": "1.0.0",
+  "note": "PyPI / TestPyPI API token: 'pypi-' + base64 macaroon whose first bytes encode pypi.org (AgEIcHlwaS5vcmc) or test.pypi.org (AgENdGVzdC5weXBpLm9yZw), 70+ more characters. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/pypi_token.py; leading \\b added and the [A-Za-z0-9-_] class (range 9-_) corrected.",
+  "patterns": [
+    {
+      "name": "pypi_token",
+      "regex": "\\bpypi-AgEIcHlwaS5vcmc[A-Za-z0-9_\\-]{70,}",
+      "score": 0.95
+    },
+    {
+      "name": "testpypi_token",
+      "regex": "\\bpypi-AgENdGVzdC5weXBpLm9yZw[A-Za-z0-9_\\-]{70,}",
+      "score": 0.95
+    }
+  ],
+  "context_words": ["pypi", "twine", "pip", "upload"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

@@ -1,0 +1,16 @@
+{
+  "name": "ibm_cloud_iam_key_recognizer",
+  "entity_type": "IBM_CLOUD_IAM_KEY",
+  "version": "1.0.0",
+  "note": "IBM Cloud IAM API key: 44 characters of [A-Za-z0-9_-] assigned to an (optional ibm/cloud/iam/api prefix +) key/pwd/password/pass/token variable. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/ibm_cloud_iam.py (case-insensitive). The prefix is optional, so any 44-character token assigned to e.g. 'token' matches; the score is moderate and boosted when IBM context is nearby. Trailing lookahead approximated with \\b; the match includes the variable name.",
+  "patterns": [
+    {
+      "name": "ibm_cloud_iam_assignment",
+      "regex": "\\b(?:[Ii][Bb][Mm](?:_|\\-|)[Cc][Ll][Oo][Uu][Dd](?:_|\\-|)[Ii][Aa][Mm]|[Cc][Ll][Oo][Uu][Dd](?:_|\\-|)[Ii][Aa][Mm]|[Ii][Bb][Mm](?:_|\\-|)[Cc][Ll][Oo][Uu][Dd]|[Ii][Bb][Mm](?:_|\\-|)[Ii][Aa][Mm]|[Ii][Bb][Mm]|[Ii][Aa][Mm]|[Cc][Ll][Oo][Uu][Dd]|)(?:_|\\-|)(?:[Aa][Pp][Ii]|)(?:_|\\-|)(?:[Kk][Ee][Yy]|[Pp][Ww][Dd]|[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]|[Pp][Aa][Ss][Ss]|[Tt][Oo][Kk][Ee][Nn])(?:\\\"|'|)(?:\\]|)(?: *)(?:=|:|:=|=>| +|::)(?: *)(?:\\\"|'|)[A-Za-z0-9_\\-]{44}\\b(?:\\\"|'|)",
+      "score": 0.6
+    }
+  ],
+  "context_words": ["ibm", "iam", "ibm cloud", "bluemix", "apikey"],
+  "context_score_boost": 0.3,
+  "supported_languages": null
+}

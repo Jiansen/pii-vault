@@ -1,0 +1,16 @@
+{
+  "name": "ibm_cos_hmac_key_recognizer",
+  "entity_type": "IBM_COS_HMAC_KEY",
+  "version": "1.0.0",
+  "note": "IBM Cloud Object Storage HMAC secret access key: 48 hex characters assigned to a secret_access_key-style variable (optionally prefixed ibm/cos/hmac). Source: detect-secrets (Apache-2.0) detect_secrets/plugins/ibm_cos_hmac.py (case-insensitive). Trailing hex lookahead approximated with \\b; the match includes the variable name.",
+  "patterns": [
+    {
+      "name": "ibm_cos_hmac_secret_assignment",
+      "regex": "\\b(?:(?:[Ii][Bb][Mm])?[\\-_]?[Cc][Oo][Ss][\\-_]?(?:[Hh][Mm][Aa][Cc])?|)(?:_|\\-|)(?:[Ss][Ee][Cc][Rr][Ee][Tt][\\-_]?(?:[Aa][Cc][Cc][Ee][Ss][Ss])?[\\-_]?[Kk][Ee][Yy])(?:\\\"|'|)(?:\\]|)(?: *)(?:=|:|:=|=>| +|::)(?: *)(?:\\\"|'|)[a-fA-F0-9]{48}\\b(?:\\\"|'|)",
+      "score": 0.8
+    }
+  ],
+  "context_words": ["ibm", "cos", "cloud object storage", "hmac", "s3"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

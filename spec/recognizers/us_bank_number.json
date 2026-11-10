@@ -1,0 +1,15 @@
+{
+  "name": "us_bank_number_recognizer",
+  "entity_type": "US_BANK_NUMBER",
+  "version": "1.0.0",
+  "patterns": [
+    {
+      "name": "bank_account_number",
+      "regex": "\\b\\d{8,17}\\b",
+      "score": 0.05
+    }
+  ],
+  "context_words": ["account", "acct", "checking", "savings"],
+  "context_score_boost": 0.6,
+  "supported_languages": ["en"]
+}

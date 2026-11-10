@@ -1,0 +1,16 @@
+{
+  "name": "azure_storage_key_recognizer",
+  "entity_type": "AZURE_STORAGE_KEY",
+  "version": "1.0.0",
+  "note": "Azure Storage account access key inside a connection string (AccountKey= followed by 88 base64 characters). Source: detect-secrets (Apache-2.0) detect_secrets/plugins/azure_storage_key.py. The match includes the 'AccountKey=' prefix.",
+  "patterns": [
+    {
+      "name": "azure_account_key",
+      "regex": "AccountKey=[a-zA-Z0-9+/=]{88}",
+      "score": 0.95
+    }
+  ],
+  "context_words": ["azure", "storage", "connection string", "DefaultEndpointsProtocol"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

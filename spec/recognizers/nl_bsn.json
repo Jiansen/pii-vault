@@ -1,0 +1,22 @@
+{
+  "name": "nl_bsn_recognizer",
+  "entity_type": "NL_BSN",
+  "version": "1.0.0",
+  "note": "BSN (burgerservicenummer), 9 digits passing the 11-proof: 9*d1 + 8*d2 + ... + 2*d8 - d9 is a positive multiple of 11. About one random 9-digit number in 11 passes, so a bare match scores low and needs a context word to pass 0.5.",
+  "patterns": [
+    {
+      "name": "bsn",
+      "regex": "\\b\\d{9}\\b",
+      "score": 0.05
+    },
+    {
+      "name": "bsn_dotted",
+      "regex": "\\b\\d{4}\\.\\d{2}\\.\\d{3}\\b",
+      "score": 0.2
+    }
+  ],
+  "context_words": ["bsn", "burgerservicenummer", "sofinummer", "sofi-nummer", "citizen service number"],
+  "context_score_boost": 0.7,
+  "validators": ["nl_bsn"],
+  "supported_languages": ["nl", "en"]
+}

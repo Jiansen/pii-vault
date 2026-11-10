@@ -1,0 +1,16 @@
+{
+  "name": "github_token_recognizer",
+  "entity_type": "GITHUB_TOKEN",
+  "version": "1.0.0",
+  "note": "GitHub token with a type prefix: ghp_ (personal access), gho_ (OAuth), ghu_ (user-to-server), ghs_ (server-to-server), ghr_ (refresh), + 36 characters. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/github_token.py; leading \\b added. Fine-grained tokens (github_pat_…) are not covered by the original plugin.",
+  "patterns": [
+    {
+      "name": "github_token",
+      "regex": "\\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{36}",
+      "score": 0.95
+    }
+  ],
+  "context_words": ["github", "token", "gh"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

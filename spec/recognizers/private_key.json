@@ -1,0 +1,31 @@
+{
+  "name": "private_key_recognizer",
+  "entity_type": "PRIVATE_KEY",
+  "version": "1.0.0",
+  "note": "Private key material: PEM/OpenSSH/PGP '-----BEGIN … PRIVATE KEY-----' blocks, SSH2 encrypted keys and PuTTY .ppk files. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/private_key.py, which only looks for the header lines; for redaction the block patterns cover header to footer so the key body is removed. The header-only pattern (lower score) still flags truncated keys and is dropped when a full block matches. 'ENCRYPTED PRIVATE KEY' (PKCS#8) and PuTTY v3 are additions.",
+  "patterns": [
+    {
+      "name": "pem_private_key_block",
+      "regex": "-----BEGIN (?:RSA |DSA |EC |OPENSSH |ENCRYPTED |PGP )?PRIVATE KEY(?: BLOCK)?-----[\\s\\S]*?-----END (?:RSA |DSA |EC |OPENSSH |ENCRYPTED |PGP )?PRIVATE KEY(?: BLOCK)?-----",
+      "score": 0.95
+    },
+    {
+      "name": "ssh2_encrypted_private_key_block",
+      "regex": "---- BEGIN SSH2 ENCRYPTED PRIVATE KEY ----[\\s\\S]*?---- END SSH2 ENCRYPTED PRIVATE KEY ----",
+      "score": 0.95
+    },
+    {
+      "name": "putty_private_key",
+      "regex": "PuTTY-User-Key-File-[23]:[\\s\\S]*?Private-MAC: [0-9a-fA-F]+",
+      "score": 0.95
+    },
+    {
+      "name": "private_key_header",
+      "regex": "BEGIN (?:DSA |EC |OPENSSH |RSA |PGP |ENCRYPTED |SSH2 ENCRYPTED )?PRIVATE KEY(?: BLOCK)?|PuTTY-User-Key-File-[23]",
+      "score": 0.8
+    }
+  ],
+  "context_words": ["private key", "ssh", "pem", "id_rsa"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

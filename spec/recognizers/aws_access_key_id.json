@@ -1,0 +1,16 @@
+{
+  "name": "aws_access_key_id_recognizer",
+  "entity_type": "AWS_ACCESS_KEY_ID",
+  "version": "1.0.0",
+  "note": "AWS access key ID: 4-character prefix (AKIA long-term, ASIA temporary STS, ABIA, ACCA, A3T*) + 16 uppercase alphanumerics. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/aws.py (pattern 1). \\b added on both sides because real key IDs are exactly 20 characters. The key ID alone cannot sign requests; pair it with AWS_SECRET_ACCESS_KEY.",
+  "patterns": [
+    {
+      "name": "aws_access_key_id",
+      "regex": "\\b(?:A3T[A-Z0-9]|ABIA|ACCA|AKIA|ASIA)[0-9A-Z]{16}\\b",
+      "score": 0.9
+    }
+  ],
+  "context_words": ["aws", "access key", "access_key_id", "aws_access_key_id", "iam"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}

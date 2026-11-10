@@ -1,0 +1,16 @@
+{
+  "name": "discord_bot_token_recognizer",
+  "entity_type": "DISCORD_BOT_TOKEN",
+  "version": "1.0.0",
+  "note": "Discord bot token: base64 user ID starting with M/N/O, '.', 6-character timestamp, '.', 27-character HMAC. Source: detect-secrets (Apache-2.0) detect_secrets/plugins/discord.py; leading \\b added.",
+  "patterns": [
+    {
+      "name": "discord_bot_token",
+      "regex": "\\b[MNO][A-Za-z0-9_\\-]{23,25}\\.[A-Za-z0-9_\\-]{6}\\.[A-Za-z0-9_\\-]{27}",
+      "score": 0.85
+    }
+  ],
+  "context_words": ["discord", "bot", "token"],
+  "context_score_boost": 0.15,
+  "supported_languages": null
+}
